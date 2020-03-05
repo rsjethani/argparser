@@ -9,26 +9,26 @@ import (
 
 func TestTraditionalApproach(t *testing.T) {
 	config := struct {
-		salute   argparser.String
-		empID    argparser.Int
-		fullName argparser.String
-		salary   argparser.Float64
+		salute   argparser.StringVal `name:"salute" opt:"yes" usage:"Salutaion for new employee"`
+		empID    argparser.Int       `name:"emp-id" opt:"yes" usage:"Employee ID for new employee" short:"i"`
+		fullName argparser.StringVal `name:"full-name" usage:"Full name of the employee"`
+		salary   argparser.Float64   `name:"salary" usage:"Employee salary"`
 	}{empID: -1, salute: "Mr."}
 
 	fmt.Printf("\n%+v\n", config)
 
-	mainSet := argparser.NewArgSet()
+	mainSet := argparser.NewArgSet(&config)
 	mainSet.Description = "CLI for managing employee database"
-	mainSet.AddOptional(&config.salute, "salutation", "Salutation to use for the new employee")
-	mainSet.AddOptional(&config.empID, "employee-id", "Employee ID of the new employee")
-	mainSet.AddPositional(&config.fullName, "full-name", "Name of the new employee")
-	mainSet.AddPositional(&config.salary, "salary", "Salary of the new employee")
-	fmt.Printf("\n%+v\n", mainSet)
+	// mainSet.AddOptional(&config.salute, "salutation", "Salutation to use for the new employee")
+	// mainSet.AddOptional(&config.empID, "employee-id", "Employee ID of the new employee")
+	// mainSet.AddPositional(&config.fullName, "full-name", "Name of the new employee")
+	// mainSet.AddPositional(&config.salary, "salary", "Salary of the new employee")
+	// fmt.Printf("\n%#v\n", mainSet)
 
-	parser := argparser.NewArgParser(mainSet)
-	parser.ParseFrom([]string{})
+	// parser := argparser.NewArgParser(mainSet)
+	// parser.ParseFrom([]string{})
 
-	fmt.Printf("\n%+v\n", config)
+	// fmt.Printf("\n%+v\n", config)
 
 	// mainSet.AddPositional("age", argparser.IntValue(18))
 

@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-type Value interface {
+type ArgValue interface {
 	String() string
 	Set(string) error
 	Get() interface{}
@@ -59,21 +59,21 @@ func (i *Int) Get() interface{} { return int(*i) }
 func (i *Int) String() string { return strconv.Itoa(int(*i)) }
 
 // -- string Value
-type String string
+type StringVal string
 
-func newStringValue(val string, p *string) *String {
+func newStringValue(val string, p *string) *StringVal {
 	*p = val
-	return (*String)(p)
+	return (*StringVal)(p)
 }
 
-func (s *String) Set(val string) error {
-	*s = String(val)
+func (s *StringVal) Set(val string) error {
+	*s = StringVal(val)
 	return nil
 }
 
-func (s *String) Get() interface{} { return string(*s) }
+func (s *StringVal) Get() interface{} { return string(*s) }
 
-func (s *String) String() string { return string(*s) }
+func (s *StringVal) String() string { return string(*s) }
 
 // -- float64 Value
 type Float64 float64

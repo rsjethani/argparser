@@ -1,20 +1,20 @@
 package argparser
 
-type ArgParser struct {
-	Title       string
-	Description string
-	mainArgSet  *ArgSet
-	children    map[string]*ArgSet
-}
+// type ArgParser struct {
+// 	Title       string
+// 	Description string
+// 	mainArgSet  *ArgSet
+// 	children    map[string]*ArgSet
+// }
 
-func NewArgParser(set *ArgSet) *ArgParser {
-	return &ArgParser{mainArgSet: set}
-}
+// func NewArgParser(set *ArgSet) *ArgParser {
+// 	return &ArgParser{mainArgSet: set}
+// }
 
-func (parser *ArgParser) ParseFrom(args []string) {
-	parser.mainArgSet.optArgs["salutation"].value.Set("Mrs.")
-	parser.mainArgSet.posArgs["salary"].value.Set("456t")
-}
+// func (parser *ArgParser) ParseFrom(args []string) {
+// 	parser.mainArgSet.optArgs["salutation"].value.Set("Mrs.")
+// 	parser.mainArgSet.posArgs["salary"].value.Set("456t")
+// }
 
 // func (parser *ArgParser) AddSubParser
 
