@@ -2,18 +2,15 @@ package argparser
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 )
 
 type ArgValue interface {
 	String() string
-	Set(string) error
+	Set(...string) error
 	Get() interface{}
 }
-
-// ErrHelp is the error returned if the -help or -h flag is invoked
-// but no such flag is defined.
-var ErrHelp = errors.New("flag: help requested")
 
 // errParse is returned by Set if a flag's value fails to parse, such as with an invalid integer for Int.
 // It then gets wrapped through failf to provide more information.
@@ -37,16 +34,37 @@ func numError(err error) error {
 	return err
 }
 
+type IntList []int
+
+func NewIntList(p *[]int) *IntList {
+	return (*IntList)(p)
+}
+
+func (il *IntList) Set(values ...string) error {
+	*il = make([]int, len(values))
+	for i, val := range values {
+		n, err := strconv.ParseInt(val, 0, strconv.IntSize)
+		(*il)[i] = int(n)
+		if err != nil {
+			return numError(err)
+		}
+	}
+	return nil
+}
+
+func (il *IntList) Get() interface{} { return (*[]int)(il) }
+
+func (il *IntList) String() string { return fmt.Sprint(*il) }
+
 // --- int value
 type Int int
 
-func newIntValue(val int, p *int) *Int {
-	*p = val
+func NewInt(p *int) *Int {
 	return (*Int)(p)
 }
 
-func (i *Int) Set(s string) error {
-	v, err := strconv.ParseInt(s, 0, strconv.IntSize)
+func (i *Int) Set(s ...string) error {
+	v, err := strconv.ParseInt(s[0], 0, strconv.IntSize)
 	if err != nil {
 		err = numError(err)
 	}
@@ -59,32 +77,30 @@ func (i *Int) Get() interface{} { return int(*i) }
 func (i *Int) String() string { return strconv.Itoa(int(*i)) }
 
 // -- string Value
-type StringVal string
+type String string
 
-func newStringValue(val string, p *string) *StringVal {
-	*p = val
-	return (*StringVal)(p)
+func NewString(p *string) *String {
+	return (*String)(p)
 }
 
-func (s *StringVal) Set(val string) error {
-	*s = StringVal(val)
+func (s *String) Set(val ...string) error {
+	*s = String(val[0])
 	return nil
 }
 
-func (s *StringVal) Get() interface{} { return string(*s) }
+func (s *String) Get() interface{} { return string(*s) }
 
-func (s *StringVal) String() string { return string(*s) }
+func (s *String) String() string { return string(*s) }
 
 // -- float64 Value
 type Float64 float64
 
-func newFloat64Value(val float64, p *float64) *Float64 {
-	*p = val
+func NewFloat64(p *float64) *Float64 {
 	return (*Float64)(p)
 }
 
-func (f *Float64) Set(s string) error {
-	v, err := strconv.ParseFloat(s, 64)
+func (f *Float64) Set(s ...string) error {
+	v, err := strconv.ParseFloat(s[0], 64)
 	if err != nil {
 		err = numError(err)
 	}

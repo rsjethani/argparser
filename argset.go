@@ -5,63 +5,81 @@ import (
 	"reflect"
 )
 
-type optArg struct {
-	value interface{}
-	usage string
-	short string
+const UnlimitedNArgs int = -1
+
+type ArgInfo struct {
+	Value ArgValue
+	Name  string
+	Usage string
+	NArgs int // later convert to string for patterns like '*', '+'
+	// mutex   map[string]bool
+	// visited bool
+	//repeat bool
 }
 
-type posArg struct {
-	value interface{}
-	usage string
+func NewArgInfo(name string, value ArgValue, usage string) *ArgInfo {
+	return &ArgInfo{
+		NArgs: 1,
+		Name:  name,
+		Value: value,
+		Usage: usage,
+	}
 }
 
 type ArgSet struct {
+	Title       string
 	Description string
-	posArgs     map[string]*posArg
-	optArgs     map[string]*optArg
+	posArgs     []*ArgInfo
+	allArgs     map[string]*ArgInfo
 }
 
-func NewArgSet(args interface{}) *ArgSet {
-	argset := &ArgSet{
-		posArgs: make(map[string]*posArg),
-		optArgs: make(map[string]*optArg),
+func NewArgSetFrom(src interface{}) (*ArgSet, error) {
+	set := NewArgSet()
+
+	t := reflect.TypeOf(src)
+	if t.Kind() != reflect.Ptr {
+		return nil, fmt.Errorf("val must be a pointer")
 	}
-	t := reflect.TypeOf(args).Elem()
-	// v := reflect.ValueOf(args).Elem()
-	// Get the type and kind of our user variable
-	fmt.Println("Type:", t.Name())
-	fmt.Println("Kind:", t.Kind())
 
-	// Iterate over all available fields and read the tag value
-	for i := 0; i < t.NumField(); i++ {
-		field := t.Field(i)
-
-		// Get the field tag value
-		if _, present := field.Tag.Lookup("opt"); present {
-			//TODO: check and raise error if value other than "yes" is given
-			if nm, present := field.Tag.Lookup("name"); present {
-				argset.optArgs[nm] = &optArg{
-					usage: field.Tag.Get("usage"),
-					short: field.Tag.Get("short"),
-				}
-			}
-		} else {
-			if nm, present := field.Tag.Lookup("name"); present {
-				argset.posArgs[nm] = &posArg{usage: field.Tag.Get("usage")}
-			}
-		}
-
-		fmt.Printf("%v %v %v\n", field.Name, field.Type.Name(), field.Type.Kind())
+	typ := t.Elem()
+	if typ.Kind() != reflect.Struct {
+		return nil, fmt.Errorf("val must be a pointer to a struct")
 	}
-	// fmt.Printf("\n%+v\n", argset.optArgs["emp-id"])
-	return argset
+
+	val := reflect.ValueOf(src).Elem()
+	x := val.Field(4)
+	// ptrtype := reflect.PtrTo(x.Type())
+	addr := x.Addr().Interface()
+
+	// tt := addr.Convert(ptrtype)
+	fmt.Printf("\n%+v\n", NewArgInfo("sdf", addr.(ArgValue), "usage"))
+	// _ = NewInt(tt)
+	// NewArgInfo("sdffsf", NewInt(*int(x)), "sdf")
+
+	// for i := 1; i <= 1; i++ {
+	// 	// for i := 0; i < typ.NumField(); i++ {
+
+	// 	field := typ.Field(i)
+	// 	nm := field.Tag.Get("name")
+	// 	// us := field.Tag.Get("usage")
+	// 	val := reflect.ValueOf(field)
+	// 	fmt.Printf("\n%v---%+v\n", nm, val)
+	// 	fmt.Println(val.Type().)
+	// arg := NewArgInfo(nm, NewInt(val.Int()), us)
+	// }
+	return set, nil
 }
 
-// func (set *ArgSet) AddOptional(val Value, name string, usage string) {
-// 	set.optArgs[name] = &optArg{value: val, usage: usage}
-// }
+func NewArgSet() *ArgSet {
+	return &ArgSet{posArgs: make([]*ArgInfo, 0), allArgs: make(map[string]*ArgInfo)}
+}
 
-// func (set *ArgSet) AddPositional(val Value, name string, usage string) {
-// 	set.posArgs[name] = &posArg{value: val, usage: usage}
-// }
+func (argset *ArgSet) AddOptional(arg *ArgInfo) {
+	temp := *arg
+	argset.allArgs[arg.Name] = &temp
+}
+
+func (argset *ArgSet) AddPositional(arg *ArgInfo) {
+	argset.AddOptional(arg)
+	argset.posArgs = append(argset.posArgs, argset.allArgs[arg.Name])
+}

@@ -1,36 +1,69 @@
-package argparser_test
+package argparser
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 	"testing"
-
-	"github.com/rsjethani/argparser"
 )
+
+type point struct {
+	x, y int
+}
+
+func (p *point) Set(values ...string) error {
+	vals := strings.Split(values[0], ",")
+	v, err := strconv.ParseInt(vals[0], 0, strconv.IntSize)
+	if err != nil {
+		return numError(err)
+	}
+	p.x = int(v)
+
+	v, err = strconv.ParseInt(vals[1], 0, strconv.IntSize)
+	// if err != nil {
+	// 	rerturn numError(err)
+	// }
+	p.y = int(v)
+
+	return nil
+}
+
+func (p *point) Get() interface{} {
+	return p
+}
+func (p *point) String() string {
+	return fmt.Sprintf("%d,%d", p.x, p.y)
+}
 
 func TestTraditionalApproach(t *testing.T) {
 	config := struct {
-		salute   argparser.StringVal `name:"salute" opt:"yes" usage:"Salutaion for new employee"`
-		empID    argparser.Int       `name:"emp-id" opt:"yes" usage:"Employee ID for new employee" short:"i"`
-		fullName argparser.StringVal `name:"full-name" usage:"Full name of the employee"`
-		salary   argparser.Float64   `name:"salary" usage:"Employee salary"`
-	}{empID: -1, salute: "Mr."}
+		salute   string  `name:"salute" opt:"yes" usage:"Salutaion for new employee"`
+		EmpID    int     `name:"emp-id" opt:"yes" usage:"Employee ID for new employee" short:"i"`
+		fullName string  `name:"full-name" usage:"Full name of the employee"`
+		salary   float64 `name:"salary" usage:"Employee salary"`
+		Loc      point
+	}{
+		EmpID:  -1,
+		salute: "Mr.",
+	}
 
-	fmt.Printf("\n%+v\n", config)
+	config.Loc = point{11, 22}
 
-	mainSet := argparser.NewArgSet(&config)
+	fmt.Printf("\nBEFORE: %+v\n", config)
+	fmt.Printf("\nBEFORE: %p\n", &config.Loc)
+
+	mainSet, err := NewArgSetFrom(&config)
+	if err != nil {
+		t.Error(err)
+	}
 	mainSet.Description = "CLI for managing employee database"
-	// mainSet.AddOptional(&config.salute, "salutation", "Salutation to use for the new employee")
-	// mainSet.AddOptional(&config.empID, "employee-id", "Employee ID of the new employee")
-	// mainSet.AddPositional(&config.fullName, "full-name", "Name of the new employee")
-	// mainSet.AddPositional(&config.salary, "salary", "Salary of the new employee")
-	// fmt.Printf("\n%#v\n", mainSet)
 
-	// parser := argparser.NewArgParser(mainSet)
-	// parser.ParseFrom([]string{})
+	fmt.Printf("\nmainset: %+v\n", mainSet)
 
-	// fmt.Printf("\n%+v\n", config)
+	parser := NewArgParser(mainSet)
+	parser.ParseFrom([]string{})
 
-	// mainSet.AddPositional("age", argparser.IntValue(18))
+	fmt.Printf("\nAFTER: %+v\n", config)
 
 }
 
