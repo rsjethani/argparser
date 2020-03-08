@@ -52,7 +52,7 @@ func TestTraditionalApproach(t *testing.T) {
 	fmt.Printf("\nBEFORE: %+v\n", config)
 	fmt.Printf("\nBEFORE: %p\n", &config.Loc)
 
-	mainSet, err := NewArgSetFrom(&config)
+	mainSet, err := NewArgSet(&config)
 	if err != nil {
 		t.Error(err)
 	}

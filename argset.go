@@ -7,34 +7,74 @@ import (
 
 const UnlimitedNArgs int = -1
 
-type ArgInfo struct {
-	Value ArgValue
-	Name  string
-	Usage string
-	NArgs int // later convert to string for patterns like '*', '+'
+type commonArgData struct {
+	value ArgValue
+	name  string
+	usage string
+	nArgs int // later convert to string for patterns like '*', '+'
+}
+
+func (c *commonArgData) setNArgs(n int) error {
+	if n == 0 {
+		return fmt.Errorf("nargs cannot be zero")
+	}
+	c.nArgs = n
+	return nil
+}
+
+type PosArg struct {
+	common commonArgData
+}
+
+func NewPosArg(name string, value ArgValue, usage string) *PosArg {
+	return &PosArg{
+		common: commonArgData{
+			nArgs: 1,
+			name:  name,
+			value: value,
+			usage: usage,
+		},
+	}
+}
+
+func (pos *PosArg) SetNArgs(n int) error {
+	return pos.common.setNArgs(n)
+}
+
+type OptArg struct {
+	common   commonArgData
+	isSwitch bool
 	// mutex   map[string]bool
 	// visited bool
 	//repeat bool
 }
 
-func NewArgInfo(name string, value ArgValue, usage string) *ArgInfo {
-	return &ArgInfo{
-		NArgs: 1,
-		Name:  name,
-		Value: value,
-		Usage: usage,
+func NewOptArg(name string, val ArgValue, sw bool, usage string) *OptArg {
+	return &OptArg{
+		common: commonArgData{
+			nArgs: 1,
+			name:  name,
+			usage: usage,
+			value: val,
+		},
+		isSwitch: sw,
 	}
+}
+
+// for switch options this change is simply ignored
+func (opt *OptArg) SetNArgs(n int) error {
+	return opt.common.setNArgs(n)
 }
 
 type ArgSet struct {
 	Title       string
 	Description string
-	posArgs     []*ArgInfo
-	allArgs     map[string]*ArgInfo
+	posArgs     map[string]*PosArg
+	optArgs     map[string]*OptArg
 }
 
-func NewArgSetFrom(src interface{}) (*ArgSet, error) {
-	set := NewArgSet()
+func NewArgSet(src interface{}) (*ArgSet, error) {
+	set := DefaultArgSet()
 
 	t := reflect.TypeOf(src)
 	if t.Kind() != reflect.Ptr {
@@ -52,7 +92,7 @@ func NewArgSetFrom(src interface{}) (*ArgSet, error) {
 	addr := x.Addr().Interface()
 
 	// tt := addr.Convert(ptrtype)
-	fmt.Printf("\n%+v\n", NewArgInfo("sdf", addr.(ArgValue), "usage"))
+	fmt.Printf("\n%+v\n", NewPosArg("sdf", addr.(ArgValue), "usage"))
 	// _ = NewInt(tt)
 	// NewArgInfo("sdffsf", NewInt(*int(x)), "sdf")
 
@@ -70,16 +110,17 @@ func NewArgSetFrom(src interface{}) (*ArgSet, error) {
 	return set, nil
 }
 
-func NewArgSet() *ArgSet {
-	return &ArgSet{posArgs: make([]*ArgInfo, 0), allArgs: make(map[string]*ArgInfo)}
+func DefaultArgSet() *ArgSet {
+	return &ArgSet{
+		posArgs: make(map[string]*PosArg),
+		optArgs: make(map[string]*OptArg),
+	}
 }
 
-func (argset *ArgSet) AddOptional(arg *ArgInfo) {
-	temp := *arg
-	argset.allArgs[arg.Name] = &temp
+func (argset *ArgSet) AddOptional(arg *OptArg) {
+	argset.optArgs[arg.common.name] = arg
 }
 
-func (argset *ArgSet) AddPositional(arg *ArgInfo) {
-	argset.AddOptional(arg)
-	argset.posArgs = append(argset.posArgs, argset.allArgs[arg.Name])
+func (argset *ArgSet) AddPositional(arg *PosArg) {
+	argset.posArgs[arg.common.name] = arg
 }
