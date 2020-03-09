@@ -13,6 +13,7 @@ func NewArgParser(set *ArgSet) *ArgParser {
 }
 
 func (parser *ArgParser) ParseFrom(args []string) {
+	// parser.mainArgSet.optArgs["salute"].common.value.Set("SDFSDGSGGS")
 	// parser.mainArgSet.allArgs["salutation"].Value.Set("XXX")
 	// parser.mainArgSet.allArgs["salary"].Value.Set("456.66")
 	// parser.mainArgSet.allArgs["tt"].Value.Set("456", "56")

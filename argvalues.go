@@ -154,3 +154,13 @@ func (fl *Float64List) Set(values ...string) error {
 func (fl *Float64List) Get() interface{} { return (*[]float64)(fl) }
 
 func (fl *Float64List) String() string { return fmt.Sprint(*fl) }
+
+//---
+func NewValue(v interface{}) (ArgValue, error) {
+	switch addr := v.(type) {
+	case *string:
+		return NewString(addr), nil
+	default:
+		return nil, fmt.Errorf("unsupported type: %T", addr)
+	}
+}

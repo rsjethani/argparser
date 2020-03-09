@@ -37,28 +37,30 @@ func (p *point) String() string {
 
 func TestTraditionalApproach(t *testing.T) {
 	config := struct {
-		salute   string  `name:"salute" opt:"yes" usage:"Salutaion for new employee"`
-		EmpID    int     `name:"emp-id" opt:"yes" usage:"Employee ID for new employee" short:"i"`
-		fullName string  `name:"full-name" usage:"Full name of the employee"`
-		salary   float64 `name:"salary" usage:"Employee salary"`
-		Loc      point
+		Salute string `argparser:""`
+		// Salute   string `argparser:"name=salute,usage=Salutation for the employee"`
+		FullName string `argparser:"name=full-name,usage=Full name of the employee,pos=yes"`
+		// EmpID    int     `name:"emp-id" opt:"yes" usage:"Employee ID for new employee" short:"i"`
+		// salary   float64 `name:"salary" usage:"Employee salary"`
+		// Loc      point
 	}{
-		EmpID:  -1,
-		salute: "Mr.",
+		// EmpID:  -1,
+		Salute: "Mr.",
 	}
 
-	config.Loc = point{11, 22}
+	// config.Loc = point{11, 22}
 
 	fmt.Printf("\nBEFORE: %+v\n", config)
-	fmt.Printf("\nBEFORE: %p\n", &config.Loc)
+	fmt.Printf("\nSalute: %p\n", &config.Salute)
+	fmt.Printf("\nFullName: %p\n", &config.FullName)
 
 	mainSet, err := NewArgSet(&config)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 	mainSet.Description = "CLI for managing employee database"
 
-	fmt.Printf("\nmainset: %+v\n", mainSet)
+	fmt.Printf("\nmainset: %#v\n", mainSet)
 
 	parser := NewArgParser(mainSet)
 	parser.ParseFrom([]string{})

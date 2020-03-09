@@ -3,6 +3,14 @@ A Powerful Argument Parser for Go
 
 
 ```
+type:   opt/pos
+name:   "name without punctuation etc."
+short:  "string with one charater"
+long:   "override long option name string"
+nargs:  number or special characters line +/*
+mutex: string label
+usage: usage string
+
 type cmdArgs struct {
     // --- positional arguments ---
     posA argparse.Int     `type:"pos",help:"posA help message"`
