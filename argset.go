@@ -3,7 +3,6 @@ package argparser
 import (
 	"fmt"
 	"reflect"
-	"strings"
 )
 
 const (
@@ -12,26 +11,16 @@ const (
 	mapKeyValueSep string = "="
 )
 
-func parseStructTag(tagValue string) (map[string]string, error) {
-	tagMap := make(map[string]string)
-	for _, value := range strings.Split(tagValue, tagValueSep) {
-		parts := strings.Split(value, mapKeyValueSep)
-		//TODO: verify key is a proper non-empty string without special symbols etc.
-		tagMap[parts[0]] = parts[1]
-	}
-	return tagMap, nil
-}
-
 type ArgSet struct {
 	Title       string
 	Description string
-	posArgs     map[string]*PosArg
+	posArgs     []*PosArg
 	optArgs     map[string]*OptArg
 }
 
 func DefaultArgSet() *ArgSet {
 	return &ArgSet{
-		posArgs: make(map[string]*PosArg),
+		posArgs: make([]*PosArg, 0),
 		optArgs: make(map[string]*OptArg),
 	}
 }
@@ -41,7 +30,7 @@ func (argset *ArgSet) AddOptional(arg *OptArg) {
 }
 
 func (argset *ArgSet) AddPositional(arg *PosArg) {
-	argset.posArgs[arg.common.name] = arg
+	argset.posArgs = append(argset.posArgs, arg)
 }
 
 func NewArgSet(src interface{}) (*ArgSet, error) {
@@ -92,16 +81,9 @@ func NewArgSet(src interface{}) (*ArgSet, error) {
 }
 
 func (argset *ArgSet) addArgument(name string, argVal ArgValue, argAttrs map[string]string) error {
-	//TODO: convert field name with '-' if multiple words
-	argName := name
-	if val, ok := argAttrs["name"]; ok {
-		argName = val
-	}
+	argName := argAttrs["name"]
 
-	var argUsage string
-	if val, ok := argAttrs["usage"]; ok {
-		argUsage = val
-	}
+	argUsage := argAttrs["usage"]
 
 	// check whether user wants positional or optional argument and process accordinly
 	if _, wantsPos := argAttrs["pos"]; wantsPos {
@@ -109,7 +91,7 @@ func (argset *ArgSet) addArgument(name string, argVal ArgValue, argAttrs map[str
 		argset.AddPositional(NewPosArg(argName, argVal, argUsage))
 
 	} else { // user wants optional argument
-		argset.AddOptional(NewOptArg(argName, argVal, argUsage))
+		argset.AddOptional(NewOptArg("--"+argName, argVal, argUsage))
 	}
 	return nil
 }
