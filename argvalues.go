@@ -12,6 +12,28 @@ type ArgValue interface {
 	Get() interface{}
 }
 
+// NewArgValue checks v's type and returns a compatible type which also
+// satisfies ArgValue interface. All supported types are pointer to some type.
+// It returns error if v is of unknown or unsupported type.
+func NewArgValue(v interface{}) (ArgValue, error) {
+	switch addr := v.(type) {
+	case *string:
+		return NewString(addr), nil
+	case *[]string:
+		return NewStringList(addr), nil
+	case *int:
+		return NewInt(addr), nil
+	case *[]int:
+		return NewIntList(addr), nil
+	case *float64:
+		return NewFloat64(addr), nil
+	case *[]float64:
+		return NewFloat64List(addr), nil
+	default:
+		return nil, fmt.Errorf("unsupported type: %T", addr)
+	}
+}
+
 // errParse is returned by Set if a flag's value fails to parse, such as with an invalid integer for Int.
 // It then gets wrapped through failf to provide more information.
 var errParse = errors.New("parse error")
@@ -154,13 +176,3 @@ func (fl *Float64List) Set(values ...string) error {
 func (fl *Float64List) Get() interface{} { return (*[]float64)(fl) }
 
 func (fl *Float64List) String() string { return fmt.Sprint(*fl) }
-
-//---
-func NewValue(v interface{}) (ArgValue, error) {
-	switch addr := v.(type) {
-	case *string:
-		return NewString(addr), nil
-	default:
-		return nil, fmt.Errorf("unsupported type: %T", addr)
-	}
-}

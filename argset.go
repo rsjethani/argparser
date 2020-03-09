@@ -43,7 +43,7 @@ func (argset *ArgSet) addArgument(fieldType reflect.StructField, fieldVal reflec
 		argUsage = val
 	}
 
-	argVal, err := NewValue(fieldVal.Addr().Interface())
+	argVal, err := NewArgValue(fieldVal.Addr().Interface())
 	if err != nil {
 		return err
 	}
