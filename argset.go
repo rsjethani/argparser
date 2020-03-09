@@ -62,7 +62,8 @@ func NewArgSet(src interface{}) (*ArgSet, error) {
 
 		argVal, err := NewArgValue(fieldVal.Addr().Interface())
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("Error while creating argument from field '%s': %s", fieldType.Name, err)
+
 		}
 
 		// create map of user provided tag values
