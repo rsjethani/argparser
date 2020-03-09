@@ -49,38 +49,14 @@ func TestTraditionalApproach(t *testing.T) {
 		Salute: "Mr.",
 	}
 
-	fmt.Printf("\nBEFORE: %+v\n", config)
-	fmt.Printf("\nSalute: %p\n", &config.Salute)
-	fmt.Printf("\nFullName: %p\n", &config.FullName)
-
 	mainSet, err := NewArgSet(&config)
 	if err != nil {
 		t.Fatal(err)
 	}
-	mainSet.Description = "CLI for managing employee database ad  ada adadffss\nadad adsd adas fwef wt"
+	mainSet.Description = "CLI for managing employee database\n...\n..."
 
-	fmt.Printf("\nmainset: %#v\n", mainSet)
+	fmt.Printf("\nmainset: %+v\n", mainSet)
 
-	parser := NewArgParser(mainSet)
-	// parser.ParseFrom([]string{})
-	// mainSet.optArgs["--point"]..Set("5,8")
-
-	parser.Usage()
-
-	// fmt.Printf("\nAFTER: %+v\n", config)
+	fmt.Println(mainSet.Usage())
 
 }
-
-/*
-func TestTagApproach(t *testing.T) {
-	myArgs := struct{
-		Age argparser.IntValue	`opt:"yes" name:"user-age" short:"a"`
-		Salary argparser.IntValue	`opt:"yes" name:"user-salary" short:"s"`
-	}
-
-	parser := argparser.NewArgParser(&myArgs)
-	parser.ParseFrom([]string{"-a", "33", "-s", "50000"})
-
-	fmt.Printf("\n%+v\n",myargs)
-}
-*/
