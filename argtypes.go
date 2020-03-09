@@ -8,15 +8,13 @@ const UnlimitedNArgs int = -1
 
 type PosArg struct {
 	Value ArgValue
-	Name  string
 	Help  string
 	nArgs int // later convert to string for patterns like '*', '+'
 }
 
-func NewPosArg(value ArgValue, name string, help string) *PosArg {
+func NewPosArg(value ArgValue, help string) *PosArg {
 	return &PosArg{
 		nArgs: 1,
-		Name:  name,
 		Value: value,
 		Help:  help,
 	}
@@ -30,13 +28,8 @@ func (pos *PosArg) SetNArgs(n int) error {
 	return nil
 }
 
-func (pos *PosArg) Usage() string {
-	return fmt.Sprintf("%-15s%s", pos.Name, pos.Help)
-}
-
 type OptArg struct {
 	Value ArgValue
-	Name  string
 	Help  string
 	nArgs int // later convert to string for patterns like '*', '+'
 	// isSwitch bool
@@ -45,14 +38,13 @@ type OptArg struct {
 	//repeat bool
 }
 
-func NewOptArg(value ArgValue, name string, help string) *OptArg {
+func NewOptArg(value ArgValue, help string) *OptArg {
 	nargs := 1
 	if value.IsBoolValue() {
 		nargs = 0
 	}
 	return &OptArg{
 		nArgs: nargs,
-		Name:  name,
 		Value: value,
 		Help:  help,
 	}
@@ -68,8 +60,4 @@ func (opt *OptArg) SetNArgs(n int) error {
 	}
 	opt.nArgs = n
 	return nil
-}
-
-func (opt *OptArg) Usage() string {
-	return fmt.Sprintf("%-15s%s", opt.Name, opt.Help)
 }

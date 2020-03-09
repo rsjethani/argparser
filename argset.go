@@ -3,6 +3,7 @@ package argparser
 import (
 	"fmt"
 	"reflect"
+	"sort"
 	"strings"
 )
 
@@ -14,24 +15,27 @@ const (
 
 type ArgSet struct {
 	Description string
-	posArgs     []*PosArg
+	posArgs     map[string]*PosArg
 	optArgs     map[string]*OptArg
+	sortedPos   []string
 	// largestName int
 }
 
 func DefaultArgSet() *ArgSet {
 	return &ArgSet{
-		posArgs: make([]*PosArg, 0),
+		posArgs: make(map[string]*PosArg),
 		optArgs: make(map[string]*OptArg),
 	}
 }
 
-func (argset *ArgSet) AddOptional(arg *OptArg) {
-	argset.optArgs[arg.Name] = arg
+func (argSet *ArgSet) AddOptional(name string, arg *OptArg) {
+	argSet.optArgs[name] = arg
 }
 
-func (argset *ArgSet) AddPositional(arg *PosArg) {
-	argset.posArgs = append(argset.posArgs, arg)
+func (argSet *ArgSet) AddPositional(name string, arg *PosArg) {
+	argSet.posArgs[name] = arg
+	argSet.sortedPos = append(argSet.sortedPos, name)
+	sort.Strings(argSet.sortedPos)
 }
 
 func NewArgSet(src interface{}) (*ArgSet, error) {
@@ -89,15 +93,15 @@ func (argset *ArgSet) Usage() string {
 	builder.WriteString(argset.Description)
 	builder.WriteString("\n\n")
 	builder.WriteString("Positional Arguments:")
-	for _, pos := range argset.posArgs {
+	for _, name := range argset.sortedPos {
 		builder.WriteString("\n")
-		builder.WriteString(pos.Usage())
+		builder.WriteString(fmt.Sprintf("%-15s%s", name, argset.posArgs[name].Help))
 	}
 	builder.WriteString("\n\n")
 	builder.WriteString("Optional Arguments:")
-	for _, opt := range argset.optArgs {
+	for name := range argset.optArgs {
 		builder.WriteString("\n")
-		builder.WriteString(opt.Usage())
+		builder.WriteString(fmt.Sprintf("%-15s%s", name, argset.optArgs[name].Help))
 	}
 	return builder.String()
 }
@@ -110,10 +114,10 @@ func (argset *ArgSet) addArgument(name string, argVal ArgValue, argAttrs map[str
 	// check whether user wants positional or optional argument and process accordinly
 	if _, wantsPos := argAttrs["pos"]; wantsPos {
 		// TODO: verify value of 'positional is yes/true only'
-		argset.AddPositional(NewPosArg(argVal, argName, argHelp))
+		argset.AddPositional(argName, NewPosArg(argVal, argHelp))
 
 	} else { // user wants optional argument
-		argset.AddOptional(NewOptArg(argVal, "--"+argName, argHelp))
+		argset.AddOptional("--"+argName, NewOptArg(argVal, argHelp))
 	}
 	return nil
 }

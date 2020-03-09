@@ -40,9 +40,9 @@ func (p *point) IsBoolValue() bool { return false }
 func TestTraditionalApproach(t *testing.T) {
 	config := struct {
 		Salute   string  `argparser:"help=Salutation for the employee,name=salute"`
+		Salary   float64 `argparser:"help=Employee salary,pos=yes,name=salary"`
 		FullName string  `argparser:"pos=yes,name=full-name,help=Full name of the employee,pos=yes"`
 		EmpID    int     `argparser:"name=emp-id,help=Employee ID for new employee,short=i"`
-		Salary   float64 `argparser:"help=Employee salary,pos=yes,name=salary"`
 		Loc      point   `argparser:"name=point"`
 	}{
 		EmpID:  -1,
