@@ -12,7 +12,7 @@ const (
 	mapKeyValueSep string = "="
 )
 
-func makeMapFromTags(tagValue string) (map[string]string, error) {
+func parseStructTag(tagValue string) (map[string]string, error) {
 	tagMap := make(map[string]string)
 	for _, value := range strings.Split(tagValue, tagValueSep) {
 		parts := strings.Split(value, mapKeyValueSep)
@@ -29,34 +29,19 @@ type ArgSet struct {
 	optArgs     map[string]*OptArg
 }
 
-func (argset *ArgSet) addArgument(fieldType reflect.StructField, fieldVal reflect.Value, argAttrs map[string]string) error {
-	var argName string
-	if val, ok := argAttrs["name"]; ok {
-		argName = val
-	} else {
-		//TODO: convert field name with '-' if multiple words
-		argName = fieldType.Name
+func DefaultArgSet() *ArgSet {
+	return &ArgSet{
+		posArgs: make(map[string]*PosArg),
+		optArgs: make(map[string]*OptArg),
 	}
+}
 
-	var argUsage string
-	if val, ok := argAttrs["usage"]; ok {
-		argUsage = val
-	}
+func (argset *ArgSet) AddOptional(arg *OptArg) {
+	argset.optArgs[arg.common.name] = arg
+}
 
-	argVal, err := NewArgValue(fieldVal.Addr().Interface())
-	if err != nil {
-		return err
-	}
-
-	// check whether user wants positional or optional argument and process accordinly
-	if _, wantsPos := argAttrs["pos"]; wantsPos {
-		// TODO: verify value of 'positional is yes/true only'
-		argset.AddPositional(NewPosArg(argName, argVal, argUsage))
-
-	} else { // user wants optional argument
-		argset.AddOptional(NewOptArg(argName, argVal, argUsage))
-	}
-	return nil
+func (argset *ArgSet) AddPositional(arg *PosArg) {
+	argset.posArgs[arg.common.name] = arg
 }
 
 func NewArgSet(src interface{}) (*ArgSet, error) {
@@ -86,53 +71,45 @@ func NewArgSet(src interface{}) (*ArgSet, error) {
 			continue
 		}
 
+		argVal, err := NewArgValue(fieldVal.Addr().Interface())
+		if err != nil {
+			return nil, err
+		}
+
 		// create map of user provided tag values
-		argAttrs, err := makeMapFromTags(tagValue)
+		argAttrs, err := parseStructTag(tagValue)
 		if err != nil {
 			return nil, fmt.Errorf("Error while parsing tags for field '%s': %s", fieldType.Name, err)
 		}
 
-		err = newArgSet.addArgument(fieldType, fieldVal, argAttrs)
+		err = newArgSet.addArgument(fieldType.Name, argVal, argAttrs)
 		if err != nil {
 			return nil, fmt.Errorf("Error while adding argument: %s", err)
 		}
 	}
 
-	// val := reflect.ValueOf(src).Elem()
-	// x := val.Field(4)
-	// // ptrtype := reflect.PtrTo(x.Type())
-	// addr := x.Addr().Interface()
-
-	// // tt := addr.Convert(ptrtype)
-	// fmt.Printf("\n%+v\n", NewPosArg("sdf", addr.(ArgValue), "usage"))
-	// _ = NewInt(tt)
-	// NewArgInfo("sdffsf", NewInt(*int(x)), "sdf")
-
-	// for i := 1; i <= 1; i++ {
-	// 	// for i := 0; i < typ.NumField(); i++ {
-
-	// 	field := typ.Field(i)
-	// 	nm := field.Tag.Get("name")
-	// 	// us := field.Tag.Get("usage")
-	// 	val := reflect.ValueOf(field)
-	// 	fmt.Printf("\n%v---%+v\n", nm, val)
-	// 	fmt.Println(val.Type().)
-	// arg := NewArgInfo(nm, NewInt(val.Int()), us)
-	// }
 	return newArgSet, nil
 }
 
-func DefaultArgSet() *ArgSet {
-	return &ArgSet{
-		posArgs: make(map[string]*PosArg),
-		optArgs: make(map[string]*OptArg),
+func (argset *ArgSet) addArgument(name string, argVal ArgValue, argAttrs map[string]string) error {
+	//TODO: convert field name with '-' if multiple words
+	argName := name
+	if val, ok := argAttrs["name"]; ok {
+		argName = val
 	}
-}
 
-func (argset *ArgSet) AddOptional(arg *OptArg) {
-	argset.optArgs[arg.common.name] = arg
-}
+	var argUsage string
+	if val, ok := argAttrs["usage"]; ok {
+		argUsage = val
+	}
 
-func (argset *ArgSet) AddPositional(arg *PosArg) {
-	argset.posArgs[arg.common.name] = arg
+	// check whether user wants positional or optional argument and process accordinly
+	if _, wantsPos := argAttrs["pos"]; wantsPos {
+		// TODO: verify value of 'positional is yes/true only'
+		argset.AddPositional(NewPosArg(argName, argVal, argUsage))
+
+	} else { // user wants optional argument
+		argset.AddOptional(NewOptArg(argName, argVal, argUsage))
+	}
+	return nil
 }

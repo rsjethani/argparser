@@ -52,9 +52,9 @@ type OptArg struct {
 }
 
 func NewOptArg(name string, val ArgValue, usage string) *OptArg {
-	var nargs int
-	if !val.IsBoolValue() {
-		nargs = 1
+	nargs := 1
+	if val.IsBoolValue() {
+		nargs = 0
 	}
 
 	return &OptArg{
