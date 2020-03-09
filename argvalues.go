@@ -7,9 +7,10 @@ import (
 )
 
 type ArgValue interface {
-	String() string
 	Set(...string) error
 	Get() interface{}
+	String() string
+	IsBoolValue() bool
 }
 
 // NewArgValue checks v's type and returns a compatible type which also
@@ -56,6 +57,53 @@ func numError(err error) error {
 	return err
 }
 
+// Bool type represents a bool value and also satisfies ArgValue interface
+type Bool bool
+
+func NewBool(p *bool) *Bool {
+	return (*Bool)(p)
+}
+
+func (b *Bool) Set(values ...string) error {
+	v, err := strconv.ParseBool(values[0])
+	if err != nil {
+		return err
+	}
+	*b = Bool(v)
+	return nil
+}
+
+func (b *Bool) Get() interface{} { return bool(*b) }
+
+func (b *Bool) String() string { return fmt.Sprint(*b) }
+
+func (b *Bool) IsBoolValue() bool { return true }
+
+// Bool type represents a bool value and also satisfies ArgValue interface
+type BoolList []bool
+
+func NewBoolList(p *[]bool) *BoolList {
+	return (*BoolList)(p)
+}
+
+func (bl *BoolList) Set(values ...string) error {
+	for i, val := range values {
+		v, err := strconv.ParseBool(val)
+		if err != nil {
+			return err
+		}
+		(*bl)[i] = v
+
+	}
+	return nil
+}
+
+func (bl *BoolList) Get() interface{} { return (*[]bool)(bl) }
+
+func (bl *BoolList) String() string { return fmt.Sprint(*bl) }
+
+func (bl *BoolList) IsBoolValue() bool { return false }
+
 // Int type represents an int value
 type Int int
 
@@ -63,6 +111,8 @@ func NewInt(p *int) *Int {
 	return (*Int)(p)
 }
 
+// implement set like Bool does...do not change pointed value to zero if
+// we get error while converting cmd arg string
 func (i *Int) Set(values ...string) error {
 	v, err := strconv.ParseInt(values[0], 0, strconv.IntSize)
 	if err != nil {
@@ -75,6 +125,8 @@ func (i *Int) Set(values ...string) error {
 func (i *Int) Get() interface{} { return int(*i) }
 
 func (i *Int) String() string { return strconv.Itoa(int(*i)) }
+
+func (i *Int) IsBoolValue() bool { return false }
 
 // IntList type representing a list of integer values
 type IntList []int
@@ -99,6 +151,8 @@ func (il *IntList) Get() interface{} { return (*[]int)(il) }
 
 func (il *IntList) String() string { return fmt.Sprint(*il) }
 
+func (il *IntList) IsBoolValue() bool { return false }
+
 // String type represents a string value and satisfies ArgValue interface
 type String string
 
@@ -114,6 +168,8 @@ func (s *String) Set(val ...string) error {
 func (s *String) Get() interface{} { return string(*s) }
 
 func (s *String) String() string { return string(*s) }
+
+func (s *String) IsBoolValue() bool { return false }
 
 // StringList type represents a list string value and satisfies ArgValue interface
 type StringList []string
@@ -133,6 +189,8 @@ func (sl *StringList) Set(values ...string) error {
 func (sl *StringList) Get() interface{} { return (*[]string)(sl) }
 
 func (sl *StringList) String() string { return fmt.Sprint(*sl) }
+
+func (sl *StringList) IsBoolValue() bool { return false }
 
 // Float64 represents a float64 value and also satisfies ArgValue interface
 type Float64 float64
@@ -154,6 +212,8 @@ func (f *Float64) Get() interface{} { return float64(*f) }
 
 func (f *Float64) String() string { return strconv.FormatFloat(float64(*f), 'g', -1, 64) }
 
+func (f *Float64) IsBoolValue() bool { return false }
+
 // Float64List type representing a list of float64 values and satisfies ArgValue interface
 type Float64List []float64
 
@@ -168,7 +228,7 @@ func (fl *Float64List) Set(values ...string) error {
 		if err != nil {
 			return numError(err)
 		}
-		(*fl)[i] = float64(f)
+		(*fl)[i] = f
 	}
 	return nil
 }
@@ -176,3 +236,5 @@ func (fl *Float64List) Set(values ...string) error {
 func (fl *Float64List) Get() interface{} { return (*[]float64)(fl) }
 
 func (fl *Float64List) String() string { return fmt.Sprint(*fl) }
+
+func (fl *Float64List) IsBoolValue() bool { return false }
