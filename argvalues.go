@@ -17,6 +17,8 @@ type ArgValue interface {
 // satisfies ArgValue interface. All supported types are pointer to some type.
 // It returns error if v is of unknown or unsupported type.
 func NewArgValue(v interface{}) (ArgValue, error) {
+	// if the underlying pointer type is one of the supported types then convert it to a
+	// ArgValue compatible type.
 	switch addr := v.(type) {
 	case *string:
 		return NewString(addr), nil
@@ -30,6 +32,8 @@ func NewArgValue(v interface{}) (ArgValue, error) {
 		return NewFloat64(addr), nil
 	case *[]float64:
 		return NewFloat64List(addr), nil
+	case ArgValue: // if the type implements ArgValue interface directly then simply return addr
+		return addr, nil
 	default:
 		return nil, fmt.Errorf("unsupported type: %T", addr)
 	}

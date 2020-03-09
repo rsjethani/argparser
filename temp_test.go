@@ -35,16 +35,17 @@ func (p *point) String() string {
 	return fmt.Sprintf("%d,%d", p.x, p.y)
 }
 
+func (p *point) IsBoolValue() bool { return false }
+
 func TestTraditionalApproach(t *testing.T) {
 	config := struct {
-		Salute string `argparser:""`
-		// Salute   string `argparser:"name=salute,usage=Salutation for the employee"`
-		FullName string `argparser:"name=full-name,usage=Full name of the employee,pos=yes"`
-		// EmpID    int     `name:"emp-id" opt:"yes" usage:"Employee ID for new employee" short:"i"`
-		// salary   float64 `name:"salary" usage:"Employee salary"`
-		// Loc      point
+		Salute   string  `argparser:"usage=Salutation for the employee,name=salute"`
+		FullName string  `argparser:"pos=yes,name=full-name,usage=Full name of the employee,pos=yes"`
+		EmpID    int     `argparser:"name=emp-id,usage=Employee ID for new employee,short=i"`
+		Salary   float64 `argparser:"usage=Employee salary,pos=yes,name=salary"`
+		Loc      point   `argparser:"name=point"`
 	}{
-		// EmpID:  -1,
+		EmpID:  -1,
 		Salute: "Mr.",
 	}
 
@@ -64,6 +65,7 @@ func TestTraditionalApproach(t *testing.T) {
 
 	parser := NewArgParser(mainSet)
 	parser.ParseFrom([]string{})
+	mainSet.optArgs["--point"].common.value.Set("5,8")
 
 	fmt.Printf("\nAFTER: %+v\n", config)
 
