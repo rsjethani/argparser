@@ -49,20 +49,12 @@ func (argset *ArgSet) addArgument(fieldType reflect.StructField, fieldVal reflec
 	}
 
 	// check whether user wants positional or optional argument and process accordinly
-	if _, wantsPos := argAttrs["positional"]; wantsPos {
+	if _, wantsPos := argAttrs["pos"]; wantsPos {
 		// TODO: verify value of 'positional is yes/true only'
-
 		argset.AddPositional(NewPosArg(argName, argVal, argUsage))
 
 	} else { // user wants optional argument
-		isSwitch := false
-		if val, ok := argAttrs["switch"]; ok {
-			if val == "true" {
-				isSwitch = true
-			}
-		}
-		argset.AddOptional(NewOptArg(argName, argVal, isSwitch, argUsage))
-
+		argset.AddOptional(NewOptArg(argName, argVal, argUsage))
 	}
 	return nil
 }
