@@ -39,17 +39,15 @@ func (p *point) IsBoolValue() bool { return false }
 
 func TestTraditionalApproach(t *testing.T) {
 	config := struct {
-		Salute   string  `argparser:"usage=Salutation for the employee,name=salute"`
-		FullName string  `argparser:"pos=yes,name=full-name,usage=Full name of the employee,pos=yes"`
-		EmpID    int     `argparser:"name=emp-id,usage=Employee ID for new employee,short=i"`
-		Salary   float64 `argparser:"usage=Employee salary,pos=yes,name=salary"`
+		Salute   string  `argparser:"help=Salutation for the employee,name=salute"`
+		FullName string  `argparser:"pos=yes,name=full-name,help=Full name of the employee,pos=yes"`
+		EmpID    int     `argparser:"name=emp-id,help=Employee ID for new employee,short=i"`
+		Salary   float64 `argparser:"help=Employee salary,pos=yes,name=salary"`
 		Loc      point   `argparser:"name=point"`
 	}{
 		EmpID:  -1,
 		Salute: "Mr.",
 	}
-
-	// config.Loc = point{11, 22}
 
 	fmt.Printf("\nBEFORE: %+v\n", config)
 	fmt.Printf("\nSalute: %p\n", &config.Salute)
@@ -59,15 +57,17 @@ func TestTraditionalApproach(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	mainSet.Description = "CLI for managing employee database"
+	mainSet.Description = "CLI for managing employee database ad  ada adadffss\nadad adsd adas fwef wt"
 
 	fmt.Printf("\nmainset: %#v\n", mainSet)
 
 	parser := NewArgParser(mainSet)
-	parser.ParseFrom([]string{})
-	mainSet.optArgs["--point"].common.value.Set("5,8")
+	// parser.ParseFrom([]string{})
+	// mainSet.optArgs["--point"]..Set("5,8")
 
-	fmt.Printf("\nAFTER: %+v\n", config)
+	parser.Usage()
+
+	// fmt.Printf("\nAFTER: %+v\n", config)
 
 }
 

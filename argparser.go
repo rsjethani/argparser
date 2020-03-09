@@ -1,15 +1,21 @@
 package argparser
 
+import (
+	"fmt"
+	"os"
+)
+
 type ArgParser struct {
-	Title       string
-	Description string
-	SubTitle    string
-	mainArgSet  *ArgSet
-	children    map[string]*ArgSet
+	mainArgSet *ArgSet
 }
 
-func NewArgParser(set *ArgSet) *ArgParser {
-	return &ArgParser{mainArgSet: set, SubTitle: "SubCommands:"}
+func NewArgParser(argSet *ArgSet) *ArgParser {
+	parser := &ArgParser{mainArgSet: argSet}
+	return parser
+}
+
+func (parser *ArgParser) Usage() {
+	fmt.Printf("Usage: %s %s", os.Args[0], parser.mainArgSet.Usage())
 }
 
 func (parser *ArgParser) ParseFrom(args []string) {

@@ -3,6 +3,7 @@ package argparser
 import (
 	"fmt"
 	"reflect"
+	"strings"
 )
 
 const (
@@ -12,10 +13,10 @@ const (
 )
 
 type ArgSet struct {
-	Title       string
 	Description string
 	posArgs     []*PosArg
 	optArgs     map[string]*OptArg
+	// largestName int
 }
 
 func DefaultArgSet() *ArgSet {
@@ -26,7 +27,7 @@ func DefaultArgSet() *ArgSet {
 }
 
 func (argset *ArgSet) AddOptional(arg *OptArg) {
-	argset.optArgs[arg.common.name] = arg
+	argset.optArgs[arg.Name] = arg
 }
 
 func (argset *ArgSet) AddPositional(arg *PosArg) {
@@ -81,18 +82,38 @@ func NewArgSet(src interface{}) (*ArgSet, error) {
 	return newArgSet, nil
 }
 
+func (argset *ArgSet) Usage() string {
+	builder := strings.Builder{}
+	builder.WriteString("[] [] [] ...")
+	builder.WriteString("\n\n")
+	builder.WriteString(argset.Description)
+	builder.WriteString("\n\n")
+	builder.WriteString("Positional Arguments:")
+	for _, pos := range argset.posArgs {
+		builder.WriteString("\n")
+		builder.WriteString(pos.Usage())
+	}
+	builder.WriteString("\n\n")
+	builder.WriteString("Optional Arguments:")
+	for _, opt := range argset.optArgs {
+		builder.WriteString("\n")
+		builder.WriteString(opt.Usage())
+	}
+	return builder.String()
+}
+
 func (argset *ArgSet) addArgument(name string, argVal ArgValue, argAttrs map[string]string) error {
 	argName := argAttrs["name"]
 
-	argUsage := argAttrs["usage"]
+	argHelp := argAttrs["help"]
 
 	// check whether user wants positional or optional argument and process accordinly
 	if _, wantsPos := argAttrs["pos"]; wantsPos {
 		// TODO: verify value of 'positional is yes/true only'
-		argset.AddPositional(NewPosArg(argName, argVal, argUsage))
+		argset.AddPositional(NewPosArg(argVal, argName, argHelp))
 
 	} else { // user wants optional argument
-		argset.AddOptional(NewOptArg("--"+argName, argVal, argUsage))
+		argset.AddOptional(NewOptArg(argVal, "--"+argName, argHelp))
 	}
 	return nil
 }

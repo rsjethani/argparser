@@ -6,68 +6,70 @@ import (
 
 const UnlimitedNArgs int = -1
 
-type commonArgData struct {
-	value ArgValue
-	name  string
-	usage string
+type PosArg struct {
+	Value ArgValue
+	Name  string
+	Help  string
 	nArgs int // later convert to string for patterns like '*', '+'
 }
 
-func (c *commonArgData) setNArgs(n int) error {
-	if c.value.IsBoolValue() {
-		return fmt.Errorf("cannot change nargs for bool value, nargs for them is always 0")
-	}
-	if n == 0 {
-		return fmt.Errorf("nargs cannot be zero for non Bool values")
-	}
-	c.nArgs = n
-	return nil
-}
-
-type PosArg struct {
-	common commonArgData
-}
-
-func NewPosArg(name string, value ArgValue, usage string) *PosArg {
+func NewPosArg(value ArgValue, name string, help string) *PosArg {
 	return &PosArg{
-		common: commonArgData{
-			nArgs: 1,
-			name:  name,
-			value: value,
-			usage: usage,
-		},
+		nArgs: 1,
+		Name:  name,
+		Value: value,
+		Help:  help,
 	}
 }
 
 func (pos *PosArg) SetNArgs(n int) error {
-	return pos.common.setNArgs(n)
+	if n == 0 {
+		return fmt.Errorf("nargs cannot be zero for positional argument")
+	}
+	pos.nArgs = n
+	return nil
+}
+
+func (pos *PosArg) Usage() string {
+	return fmt.Sprintf("%-15s%s", pos.Name, pos.Help)
 }
 
 type OptArg struct {
-	common commonArgData
+	Value ArgValue
+	Name  string
+	Help  string
+	nArgs int // later convert to string for patterns like '*', '+'
 	// isSwitch bool
 	// mutex   map[string]bool
 	// visited bool
 	//repeat bool
 }
 
-func NewOptArg(name string, val ArgValue, usage string) *OptArg {
+func NewOptArg(value ArgValue, name string, help string) *OptArg {
 	nargs := 1
-	if val.IsBoolValue() {
+	if value.IsBoolValue() {
 		nargs = 0
 	}
-
 	return &OptArg{
-		common: commonArgData{
-			nArgs: nargs,
-			name:  name,
-			usage: usage,
-			value: val,
-		},
+		nArgs: nargs,
+		Name:  name,
+		Value: value,
+		Help:  help,
 	}
+
 }
 
-// for switch options this change is simply ignored
 func (opt *OptArg) SetNArgs(n int) error {
-	return opt.common.setNArgs(n)
+	if opt.Value.IsBoolValue() {
+		return fmt.Errorf("cannot change nargs for optional bool argument, it is always 0")
+	}
+	if n == 0 {
+		return fmt.Errorf("nargs cannot be zero for non Bool optional values")
+	}
+	opt.nArgs = n
+	return nil
+}
+
+func (opt *OptArg) Usage() string {
+	return fmt.Sprintf("%-15s%s", opt.Name, opt.Help)
 }
