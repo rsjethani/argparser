@@ -14,8 +14,11 @@ type commonArgData struct {
 }
 
 func (c *commonArgData) setNArgs(n int) error {
+	if c.value.IsBoolValue() {
+		return fmt.Errorf("cannot change nargs for bool value, nargs for them is always 0")
+	}
 	if n == 0 {
-		return fmt.Errorf("nargs cannot be zero")
+		return fmt.Errorf("nargs cannot be zero for non Bool values")
 	}
 	c.nArgs = n
 	return nil
@@ -41,22 +44,26 @@ func (pos *PosArg) SetNArgs(n int) error {
 }
 
 type OptArg struct {
-	common   commonArgData
-	isSwitch bool
+	common commonArgData
+	// isSwitch bool
 	// mutex   map[string]bool
 	// visited bool
 	//repeat bool
 }
 
-func NewOptArg(name string, val ArgValue, sw bool, usage string) *OptArg {
+func NewOptArg(name string, val ArgValue, usage string) *OptArg {
+	var nargs int
+	if !val.IsBoolValue() {
+		nargs = 1
+	}
+
 	return &OptArg{
 		common: commonArgData{
-			nArgs: 1,
+			nArgs: nargs,
 			name:  name,
 			usage: usage,
 			value: val,
 		},
-		isSwitch: sw,
 	}
 }
 
