@@ -41,6 +41,22 @@ func (argSet *ArgSet) AddPositional(name string, arg *PosArg) {
 	sort.SliceStable(argSet.posArgs, func(i, j int) bool { return argSet.posArgs[i].name < argSet.posArgs[j].name })
 }
 
+func (argset *ArgSet) addArgument(name string, argVal ArgValue, argAttrs map[string]string) error {
+	argName := argAttrs["name"]
+
+	argHelp := argAttrs["help"]
+
+	// check whether user wants positional or optional argument and process accordinly
+	if _, wantsPos := argAttrs["pos"]; wantsPos {
+		// TODO: verify value of 'positional is yes/true only'
+		argset.AddPositional(argName, NewPosArg(argVal, argHelp))
+
+	} else { // user wants optional argument
+		argset.AddOptional("--"+argName, NewOptArg(argVal, argHelp))
+	}
+	return nil
+}
+
 func NewArgSet(src interface{}) (*ArgSet, error) {
 	// get Type data of src, verify that it is of pointer type
 	srcTyp := reflect.TypeOf(src)
@@ -107,20 +123,4 @@ func (argset *ArgSet) Usage() string {
 		builder.WriteString(fmt.Sprintf("%-15s%s", name, argset.optArgs[name].Help))
 	}
 	return builder.String()
-}
-
-func (argset *ArgSet) addArgument(name string, argVal ArgValue, argAttrs map[string]string) error {
-	argName := argAttrs["name"]
-
-	argHelp := argAttrs["help"]
-
-	// check whether user wants positional or optional argument and process accordinly
-	if _, wantsPos := argAttrs["pos"]; wantsPos {
-		// TODO: verify value of 'positional is yes/true only'
-		argset.AddPositional(argName, NewPosArg(argVal, argHelp))
-
-	} else { // user wants optional argument
-		argset.AddOptional("--"+argName, NewOptArg(argVal, argHelp))
-	}
-	return nil
 }
