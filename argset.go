@@ -13,17 +13,21 @@ const (
 	mapKeyValueSep string = "="
 )
 
+type posArgWithName struct {
+	name string
+	arg  *PosArg
+}
+
 type ArgSet struct {
 	Description string
-	posArgs     map[string]*PosArg
+	posArgs     []posArgWithName
 	optArgs     map[string]*OptArg
-	sortedPos   []string
 	// largestName int
 }
 
 func DefaultArgSet() *ArgSet {
 	return &ArgSet{
-		posArgs: make(map[string]*PosArg),
+		// posArgs: make(map[string]*PosArg),
 		optArgs: make(map[string]*OptArg),
 	}
 }
@@ -33,9 +37,8 @@ func (argSet *ArgSet) AddOptional(name string, arg *OptArg) {
 }
 
 func (argSet *ArgSet) AddPositional(name string, arg *PosArg) {
-	argSet.posArgs[name] = arg
-	argSet.sortedPos = append(argSet.sortedPos, name)
-	sort.Strings(argSet.sortedPos)
+	argSet.posArgs = append(argSet.posArgs, posArgWithName{name: name, arg: arg})
+	sort.SliceStable(argSet.posArgs, func(i, j int) bool { return argSet.posArgs[i].name < argSet.posArgs[j].name })
 }
 
 func NewArgSet(src interface{}) (*ArgSet, error) {
@@ -93,9 +96,9 @@ func (argset *ArgSet) Usage() string {
 	builder.WriteString(argset.Description)
 	builder.WriteString("\n\n")
 	builder.WriteString("Positional Arguments:")
-	for _, name := range argset.sortedPos {
+	for _, p := range argset.posArgs {
 		builder.WriteString("\n")
-		builder.WriteString(fmt.Sprintf("%-15s%s", name, argset.posArgs[name].Help))
+		builder.WriteString(fmt.Sprintf("%-15s%s", p.name, p.arg.Help))
 	}
 	builder.WriteString("\n\n")
 	builder.WriteString("Optional Arguments:")
