@@ -20,6 +20,10 @@ func NewArgValue(v interface{}) (ArgValue, error) {
 	// if the underlying pointer type is one of the supported types then convert it to a
 	// ArgValue compatible type.
 	switch addr := v.(type) {
+	case *bool:
+		return NewBool(addr), nil
+	case *[]bool:
+		return NewBoolList(addr), nil
 	case *string:
 		return NewString(addr), nil
 	case *[]string:

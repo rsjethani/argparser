@@ -10,6 +10,7 @@ type Argument struct {
 	Value      ArgValue
 	Help       string
 	Positional bool
+	Visited    bool
 	nArgs      int // later convert to string for patterns like '*', '+'
 }
 
