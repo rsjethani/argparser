@@ -3,7 +3,6 @@ package argparser
 import (
 	"fmt"
 	"reflect"
-	"sort"
 	"strings"
 )
 
@@ -15,30 +14,29 @@ const (
 
 type posArgWithName struct {
 	name string
-	arg  *PosArg
+	arg  *Argument
 }
 
 type ArgSet struct {
 	Description string
 	posArgs     []posArgWithName
-	optArgs     map[string]*OptArg
+	optArgs     map[string]*Argument
 	// largestName int
 }
 
 func DefaultArgSet() *ArgSet {
 	return &ArgSet{
-		// posArgs: make(map[string]*PosArg),
-		optArgs: make(map[string]*OptArg),
+		optArgs: make(map[string]*Argument),
 	}
 }
 
-func (argSet *ArgSet) AddOptional(name string, arg *OptArg) {
+func (argSet *ArgSet) AddOptional(name string, arg *Argument) {
 	argSet.optArgs[name] = arg
 }
 
-func (argSet *ArgSet) AddPositional(name string, arg *PosArg) {
+func (argSet *ArgSet) AddPositional(name string, arg *Argument) {
 	argSet.posArgs = append(argSet.posArgs, posArgWithName{name: name, arg: arg})
-	sort.SliceStable(argSet.posArgs, func(i, j int) bool { return argSet.posArgs[i].name < argSet.posArgs[j].name })
+	// sort.SliceStable(argSet.posArgs, func(i, j int) bool { return argSet.posArgs[i].name < argSet.posArgs[j].name })
 }
 
 func (argset *ArgSet) addArgument(name string, argVal ArgValue, argAttrs map[string]string) error {
@@ -105,22 +103,23 @@ func NewArgSet(src interface{}) (*ArgSet, error) {
 	return newArgSet, nil
 }
 
-func (argset *ArgSet) Usage() string {
+func (argSet *ArgSet) Usage() string {
+	// TODO: show list of pos/opt args in sorted order
 	builder := strings.Builder{}
 	builder.WriteString("[] [] [] ...")
 	builder.WriteString("\n\n")
-	builder.WriteString(argset.Description)
+	builder.WriteString(argSet.Description)
 	builder.WriteString("\n\n")
 	builder.WriteString("Positional Arguments:")
-	for _, p := range argset.posArgs {
+	for _, p := range argSet.posArgs {
 		builder.WriteString("\n")
 		builder.WriteString(fmt.Sprintf("%-15s%s", p.name, p.arg.Help))
 	}
 	builder.WriteString("\n\n")
 	builder.WriteString("Optional Arguments:")
-	for name := range argset.optArgs {
+	for name := range argSet.optArgs {
 		builder.WriteString("\n")
-		builder.WriteString(fmt.Sprintf("%-15s%s", name, argset.optArgs[name].Help))
+		builder.WriteString(fmt.Sprintf("%-15s%s", name, argSet.optArgs[name].Help))
 	}
 	return builder.String()
 }

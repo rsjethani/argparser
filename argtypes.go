@@ -6,58 +6,41 @@ import (
 
 const UnlimitedNArgs int = -1
 
-type PosArg struct {
-	Value ArgValue
-	Help  string
-	nArgs int // later convert to string for patterns like '*', '+'
+type Argument struct {
+	Value      ArgValue
+	Help       string
+	Positional bool
+	nArgs      int // later convert to string for patterns like '*', '+'
 }
 
-func NewPosArg(value ArgValue, help string) *PosArg {
-	return &PosArg{
-		nArgs: 1,
-		Value: value,
-		Help:  help,
+func NewPosArg(value ArgValue, help string) *Argument {
+	return &Argument{
+		nArgs:      1,
+		Value:      value,
+		Help:       help,
+		Positional: true,
 	}
 }
 
-func (pos *PosArg) SetNArgs(n int) error {
-	if n == 0 {
-		return fmt.Errorf("nargs cannot be zero for positional argument")
-	}
-	pos.nArgs = n
-	return nil
-}
-
-type OptArg struct {
-	Value ArgValue
-	Help  string
-	nArgs int // later convert to string for patterns like '*', '+'
-	// isSwitch bool
-	// mutex   map[string]bool
-	// visited bool
-	//repeat bool
-}
-
-func NewOptArg(value ArgValue, help string) *OptArg {
+func NewOptArg(value ArgValue, help string) *Argument {
 	nargs := 1
 	if value.IsBoolValue() {
 		nargs = 0
 	}
-	return &OptArg{
+	return &Argument{
 		nArgs: nargs,
 		Value: value,
 		Help:  help,
 	}
-
 }
 
-func (opt *OptArg) SetNArgs(n int) error {
-	if opt.Value.IsBoolValue() {
+func (arg *Argument) SetNArgs(n int) error {
+	if arg.Value.IsBoolValue() && !arg.Positional {
 		return fmt.Errorf("cannot change nargs for optional bool argument, it is always 0")
 	}
 	if n == 0 {
-		return fmt.Errorf("nargs cannot be zero for non Bool optional values")
+		return fmt.Errorf("nargs cannot be zero for non boolean argument")
 	}
-	opt.nArgs = n
+	arg.nArgs = n
 	return nil
 }
