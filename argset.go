@@ -36,7 +36,6 @@ func (argSet *ArgSet) AddOptional(name string, arg *Argument) {
 
 func (argSet *ArgSet) AddPositional(name string, arg *Argument) {
 	argSet.posArgs = append(argSet.posArgs, posArgWithName{name: name, arg: arg})
-	// sort.SliceStable(argSet.posArgs, func(i, j int) bool { return argSet.posArgs[i].name < argSet.posArgs[j].name })
 }
 
 func (argset *ArgSet) addArgument(name string, argVal ArgValue, argAttrs map[string]string) error {
@@ -137,19 +136,19 @@ func (argSet *ArgSet) ParseFrom(args []string) error {
 	var curArg string
 	var posIndex, argsIndex int
 
-	getArg := func() (string, error) {
+	getArg := func() string {
 		if argsIndex < len(args) {
-			return args[argsIndex], nil
+			return args[argsIndex]
 		}
-		return "", fmt.Errorf("")
+		return ""
 	}
 
 	for {
 		switch curState {
 		case stateInit:
 			fmt.Println("init")
-			arg, err := getArg()
-			if err != nil {
+			arg := getArg()
+			if arg == "" {
 				curState = stateNoArgsLeft
 				break
 			}

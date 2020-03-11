@@ -44,6 +44,7 @@ func TestTraditionalApproach(t *testing.T) {
 		FullName string  `argparser:"pos=yes,name=full-name,help=Full name of the employee,pos=yes"`
 		EmpID    int     `argparser:"name=emp-id,help=Employee ID for new employee,short=i"`
 		Loc      point   `argparser:"name=point"`
+		IsIntern bool    `argparser:"name=is-intern"`
 	}{
 		EmpID:  -1,
 		Salute: "Mr.",
@@ -56,7 +57,9 @@ func TestTraditionalApproach(t *testing.T) {
 	mainSet.Description = "CLI for managing employee database\n...\n..."
 
 	fmt.Printf("\nmainset: %+v\n", mainSet)
-
 	fmt.Println(mainSet.Usage())
 
+	fmt.Printf("\n%+v\n", config)
+	fmt.Println(mainSet.ParseFrom([]string{"345", "asd", "--is-intern"}))
+	fmt.Printf("\n%+v\n", config)
 }
