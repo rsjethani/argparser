@@ -123,3 +123,89 @@ func (argSet *ArgSet) Usage() string {
 	}
 	return builder.String()
 }
+
+const (
+	stateInit int = iota
+	statePosArg
+	stateOptArg
+	stateOptArgValue
+	stateNoArgsLeft
+)
+
+func (argSet *ArgSet) ParseFrom(args []string) error {
+	curState := stateInit
+	var curArg string
+	var posIndex, argsIndex int
+
+	getArg := func() (string, error) {
+		if argsIndex < len(args) {
+			return args[argsIndex], nil
+		}
+		return "", fmt.Errorf("")
+	}
+
+	for {
+		switch curState {
+		case stateInit:
+			fmt.Println("init")
+			arg, err := getArg()
+			if err != nil {
+				curState = stateNoArgsLeft
+				break
+			}
+			curArg = arg
+
+			// if curArg starts with '-' then process it as an optional arg
+			if strings.HasPrefix(curArg, "-") {
+				if opt, found := argSet.optArgs[curArg]; found {
+					if opt.Visited { // if curArg is defined but already processed then return error
+						return fmt.Errorf("option '%s' already given", curArg)
+					}
+					curState = stateOptArg
+					break
+				} else { // if curArg is not defined as na opt arg then return error
+					return fmt.Errorf("unknown optional argument: %s", curArg)
+				}
+			}
+
+			// if all positional args have not been processed yet then consider
+			// curArg as the value for next positional arg
+			if posIndex < len(argSet.posArgs) {
+				curState = statePosArg
+				break
+			}
+
+			// since all defined positional and optional args have been processed, curArg
+			// is an undefined positional arg
+			return fmt.Errorf("Unknown positional argument: %s", curArg)
+		case statePosArg:
+			fmt.Println("pos")
+			if err := argSet.posArgs[posIndex].arg.Value.Set(curArg); err != nil {
+				return err
+			}
+			argSet.posArgs[posIndex].arg.Visited = true
+			posIndex++
+			argsIndex++
+			curState = stateInit
+		case stateOptArg:
+			fmt.Println("opt")
+			if argSet.optArgs[curArg].Value.IsBoolValue() {
+				argSet.optArgs[curArg].Value.Set("true")
+				argsIndex++
+				curState = stateInit
+			} else {
+				curState = stateOptArgValue
+			}
+		case stateOptArgValue:
+			curState = stateInit
+		case stateNoArgsLeft:
+			fmt.Println("no args")
+			for _, pos := range argSet.posArgs {
+				if !pos.arg.Visited {
+					return fmt.Errorf("Error: value for positional argument '%s' not given", pos.name)
+				}
+			}
+			return nil
+		}
+	}
+}
