@@ -127,18 +127,18 @@ const (
 	stateInit int = iota
 	statePosArg
 	stateOptArg
-	stateOptArgValue
 	stateNoArgsLeft
 )
 
 func (argSet *ArgSet) ParseFrom(args []string) error {
 	curState := stateInit
 	var curArg string
+	visited := make(map[string]bool)
 	var posIndex, argsIndex int
 
-	getArg := func() string {
-		if argsIndex < len(args) {
-			return args[argsIndex]
+	getArg := func(i int) string {
+		if i < len(args) {
+			return args[i]
 		}
 		return ""
 	}
@@ -147,7 +147,7 @@ func (argSet *ArgSet) ParseFrom(args []string) error {
 		switch curState {
 		case stateInit:
 			fmt.Println("init")
-			arg := getArg()
+			arg := getArg(argsIndex)
 			if arg == "" {
 				curState = stateNoArgsLeft
 				break
@@ -156,13 +156,13 @@ func (argSet *ArgSet) ParseFrom(args []string) error {
 
 			// if curArg starts with '-' then process it as an optional arg
 			if strings.HasPrefix(curArg, "-") {
-				if opt, found := argSet.optArgs[curArg]; found {
-					if opt.Visited { // if curArg is defined but already processed then return error
+				if _, found := argSet.optArgs[curArg]; found {
+					if visited[curArg] { // if curArg is defined but already processed then return error
 						return fmt.Errorf("option '%s' already given", curArg)
 					}
 					curState = stateOptArg
 					break
-				} else { // if curArg is not defined as na opt arg then return error
+				} else { // if curArg is not defined as an opt arg then return error
 					return fmt.Errorf("unknown optional argument: %s", curArg)
 				}
 			}
@@ -182,7 +182,7 @@ func (argSet *ArgSet) ParseFrom(args []string) error {
 			if err := argSet.posArgs[posIndex].arg.Value.Set(curArg); err != nil {
 				return err
 			}
-			argSet.posArgs[posIndex].arg.Visited = true
+			visited[argSet.posArgs[posIndex].name] = true
 			posIndex++
 			argsIndex++
 			curState = stateInit
@@ -191,16 +191,25 @@ func (argSet *ArgSet) ParseFrom(args []string) error {
 			if argSet.optArgs[curArg].Value.IsBoolValue() {
 				argSet.optArgs[curArg].Value.Set("true")
 				argsIndex++
-				curState = stateInit
 			} else {
-				curState = stateOptArgValue
+				inp := []string{}
+				for i := 1; i <= argSet.optArgs[curArg].nArgs; i++ {
+					v := getArg(i + argsIndex)
+					if v == "" {
+						return fmt.Errorf("invalid no. of arguments for option '%s'; required: %d, given: %d", curArg, argSet.optArgs[curArg].nArgs, i-1)
+					}
+					inp = append(inp, v)
+				}
+				if err := argSet.optArgs[curArg].Value.Set(inp...); err != nil {
+					return fmt.Errorf("error while setting %v as value for option '%s': %s", inp, curArg, err)
+				}
+				argsIndex += argSet.optArgs[curArg].nArgs + 1
 			}
-		case stateOptArgValue:
 			curState = stateInit
 		case stateNoArgsLeft:
 			fmt.Println("no args")
 			for _, pos := range argSet.posArgs {
-				if !pos.arg.Visited {
+				if !visited[pos.name] {
 					return fmt.Errorf("Error: value for positional argument '%s' not given", pos.name)
 				}
 			}
