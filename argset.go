@@ -180,7 +180,7 @@ func (argSet *ArgSet) ParseFrom(args []string) error {
 		case statePosArg:
 			fmt.Println("pos")
 			if err := argSet.posArgs[posIndex].arg.Value.Set(curArg); err != nil {
-				return err
+				return fmt.Errorf("error while setting option '%s': %s", argSet.posArgs[posIndex].name, err)
 			}
 			visited[argSet.posArgs[posIndex].name] = true
 			posIndex++
@@ -201,7 +201,7 @@ func (argSet *ArgSet) ParseFrom(args []string) error {
 					inp = append(inp, v)
 				}
 				if err := argSet.optArgs[curArg].Value.Set(inp...); err != nil {
-					return fmt.Errorf("error while setting %v as value for option '%s': %s", inp, curArg, err)
+					return fmt.Errorf("error while setting option '%s': %s", curArg, err)
 				}
 				argsIndex += argSet.optArgs[curArg].nArgs + 1
 			}

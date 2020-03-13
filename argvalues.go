@@ -1,7 +1,6 @@
 package argparser
 
 import (
-	"errors"
 	"fmt"
 	"strconv"
 )
@@ -13,8 +12,21 @@ type ArgValue interface {
 	IsBoolValue() bool
 }
 
+type ErrArgValue struct {
+	err error
+	val ArgValue
+}
+
+func (e *ErrArgValue) Error() string {
+	ne, ok := e.err.(*strconv.NumError)
+	if !ok {
+		return e.err.Error()
+	}
+	return fmt.Sprintf("cannot parse '%s' as '%T': %s", ne.Num, e.val.Get(), ne.Err)
+}
+
 // NewArgValue checks v's type and returns a compatible type which also
-// satisfies ArgValue interface. All supported types are pointer to some type.
+// implements ArgValue interface. All supported types are pointer to some type.
 // It returns error if v is of unknown or unsupported type.
 func NewArgValue(v interface{}) (ArgValue, error) {
 	// if the underlying pointer type is one of the supported types then convert it to a
@@ -43,29 +55,7 @@ func NewArgValue(v interface{}) (ArgValue, error) {
 	}
 }
 
-// errParse is returned by Set if a flag's value fails to parse, such as with an invalid integer for Int.
-// It then gets wrapped through failf to provide more information.
-var errParse = errors.New("parse error")
-
-// errRange is returned by Set if a flag's value is out of range.
-// It then gets wrapped through failf to provide more information.
-var errRange = errors.New("value out of range")
-
-func numError(err error) error {
-	ne, ok := err.(*strconv.NumError)
-	if !ok {
-		return err
-	}
-	if ne.Err == strconv.ErrSyntax {
-		return errParse
-	}
-	if ne.Err == strconv.ErrRange {
-		return errRange
-	}
-	return err
-}
-
-// Bool type represents a bool value and also satisfies ArgValue interface
+// Bool type represents a bool value and also implements ArgValue interface
 type Bool bool
 
 func NewBool(p *bool) *Bool {
@@ -75,7 +65,7 @@ func NewBool(p *bool) *Bool {
 func (b *Bool) Set(values ...string) error {
 	v, err := strconv.ParseBool(values[0])
 	if err != nil {
-		return err
+		return &ErrArgValue{err, b}
 	}
 	*b = Bool(v)
 	return nil
@@ -87,7 +77,7 @@ func (b *Bool) String() string { return fmt.Sprint(*b) }
 
 func (b *Bool) IsBoolValue() bool { return true }
 
-// Bool type represents a bool value and also satisfies ArgValue interface
+// Bool type represents a bool value and also implements ArgValue interface
 type BoolList []bool
 
 func NewBoolList(p *[]bool) *BoolList {
@@ -98,7 +88,7 @@ func (bl *BoolList) Set(values ...string) error {
 	for i, val := range values {
 		v, err := strconv.ParseBool(val)
 		if err != nil {
-			return err
+			return &ErrArgValue{err, bl}
 		}
 		(*bl)[i] = v
 
@@ -124,10 +114,10 @@ func NewInt(p *int) *Int {
 func (i *Int) Set(values ...string) error {
 	v, err := strconv.ParseInt(values[0], 0, strconv.IntSize)
 	if err != nil {
-		err = numError(err)
+		return &ErrArgValue{err, i}
 	}
 	*i = Int(v)
-	return err
+	return nil
 }
 
 func (i *Int) Get() interface{} { return int(*i) }
@@ -148,7 +138,7 @@ func (il *IntList) Set(values ...string) error {
 	for i, val := range values {
 		n, err := strconv.ParseInt(val, 0, strconv.IntSize)
 		if err != nil {
-			return numError(err)
+			return &ErrArgValue{err, il}
 		}
 		(*il)[i] = int(n)
 	}
@@ -161,7 +151,7 @@ func (il *IntList) String() string { return fmt.Sprint(*il) }
 
 func (il *IntList) IsBoolValue() bool { return false }
 
-// String type represents a string value and satisfies ArgValue interface
+// String type represents a string value and implements ArgValue interface
 type String string
 
 func NewString(p *string) *String {
@@ -179,7 +169,7 @@ func (s *String) String() string { return string(*s) }
 
 func (s *String) IsBoolValue() bool { return false }
 
-// StringList type represents a list string value and satisfies ArgValue interface
+// StringList type represents a list string value and implements ArgValue interface
 type StringList []string
 
 func NewStringList(p *[]string) *StringList {
@@ -200,7 +190,7 @@ func (sl *StringList) String() string { return fmt.Sprint(*sl) }
 
 func (sl *StringList) IsBoolValue() bool { return false }
 
-// Float64 represents a float64 value and also satisfies ArgValue interface
+// Float64 represents a float64 value and also implements ArgValue interface
 type Float64 float64
 
 func NewFloat64(p *float64) *Float64 {
@@ -210,10 +200,10 @@ func NewFloat64(p *float64) *Float64 {
 func (f *Float64) Set(s ...string) error {
 	v, err := strconv.ParseFloat(s[0], 64)
 	if err != nil {
-		err = numError(err)
+		return &ErrArgValue{err, f}
 	}
 	*f = Float64(v)
-	return err
+	return nil
 }
 
 func (f *Float64) Get() interface{} { return float64(*f) }
@@ -222,7 +212,7 @@ func (f *Float64) String() string { return strconv.FormatFloat(float64(*f), 'g',
 
 func (f *Float64) IsBoolValue() bool { return false }
 
-// Float64List type representing a list of float64 values and satisfies ArgValue interface
+// Float64List type representing a list of float64 values and implements ArgValue interface
 type Float64List []float64
 
 func NewFloat64List(p *[]float64) *Float64List {
@@ -234,7 +224,7 @@ func (fl *Float64List) Set(values ...string) error {
 	for i, val := range values {
 		f, err := strconv.ParseFloat(val, 64)
 		if err != nil {
-			return numError(err)
+			return &ErrArgValue{err, fl}
 		}
 		(*fl)[i] = f
 	}

@@ -15,7 +15,7 @@ func (p *point) Set(values ...string) error {
 	vals := strings.Split(values[0], ",")
 	v, err := strconv.ParseInt(vals[0], 0, strconv.IntSize)
 	if err != nil {
-		return numError(err)
+		return &ErrArgValue{err, p}
 	}
 	p.x = int(v)
 
@@ -60,6 +60,6 @@ func TestTraditionalApproach(t *testing.T) {
 	fmt.Println(mainSet.Usage())
 
 	fmt.Printf("\n%+v\n", config)
-	fmt.Println(mainSet.ParseFrom([]string{"345", "asd", "--is-intern", "--point", "--df"}))
+	fmt.Println(mainSet.ParseFrom([]string{"34", "asd", "--is-intern", "--emp-id", "88888888888888888888888888888888"}))
 	fmt.Printf("\n%+v\n", config)
 }
