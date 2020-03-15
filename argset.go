@@ -81,16 +81,16 @@ func NewArgSet(src interface{}) (*ArgSet, error) {
 			continue
 		}
 
-		argVal, err := NewArgValue(fieldVal.Addr().Interface())
-		if err != nil {
-			return nil, fmt.Errorf("Error while creating argument from field '%s': %s", fieldType.Name, err)
-
-		}
-
 		// create map of user provided tag values
 		argAttrs, err := parseStructTag(tagValue)
 		if err != nil {
 			return nil, fmt.Errorf("Error while parsing tags for field '%s': %s", fieldType.Name, err)
+		}
+
+		argVal, err := NewArgValue(fieldVal.Addr().Interface())
+		if err != nil {
+			return nil, fmt.Errorf("Error while creating argument from field '%s': %s", fieldType.Name, err)
+
 		}
 
 		err = newArgSet.addArgument(fieldType.Name, argVal, argAttrs)
