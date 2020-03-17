@@ -76,8 +76,8 @@ func NewArgSet(src interface{}) (*ArgSet, error) {
 	for i := 0; i < srcTyp.NumField(); i++ {
 		fieldType := srcTyp.Field(i)
 		fieldVal := srcVal.Field(i)
-		tagValue, hasTag := srcTyp.Field(i).Tag.Lookup(tagKey)
-		if !hasTag {
+		tagValue, tagged := srcTyp.Field(i).Tag.Lookup(tagKey)
+		if !tagged {
 			continue
 		}
 
