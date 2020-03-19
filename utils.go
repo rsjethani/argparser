@@ -13,7 +13,6 @@ var validTags = map[string]*regexp.Regexp{
 	"help":  regexp.MustCompile(`^help=([^|]+)$`),
 	"nargs": regexp.MustCompile(`^nargs=(-?[[:digit:]]+)$`),
 	// "mutex":      nil,
-	// "nargs":      nil,
 	// "short":      nil,
 }
 
@@ -24,16 +23,16 @@ func parseTags(structTags string) (map[string]string, error) {
 		if tag == "" {
 			continue
 		}
-		invalid := true
+		unknownTag := true
 		for name, regex := range validTags {
 			res := regex.FindStringSubmatch(tag)
 			if len(res) == 2 {
 				tagValues[name] = res[1]
-				invalid = false
+				unknownTag = false
 			}
 		}
-		if invalid {
-			return nil, fmt.Errorf("invalid tag or value: %s", tag)
+		if unknownTag {
+			return nil, fmt.Errorf("unknown tag and/or invalid value: %s", tag)
 		}
 	}
 	// 'name' tag must be there
