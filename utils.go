@@ -43,22 +43,23 @@ func parseTags(structTags string) (map[string]string, error) {
 }
 
 func newArgFromTags(value ArgValue, tags map[string]string) (*Argument, error) {
-	arg := &Argument{Value: value}
+	var newARg *Argument
 	if tags["pos"] == "yes" {
-		arg.Positional = true
+		newARg = NewPosArg(value, tags["help"])
+	} else {
+		newARg = NewOptArg(value, tags["help"])
 	}
-	arg.Help = tags["help"]
 
 	if tags["nargs"] != "" {
-		val, err := strconv.ParseInt(tags["nargs"], 0, strconv.IntSize)
+		nargs, err := strconv.ParseInt(tags["nargs"], 0, strconv.IntSize)
 		if err != nil {
 			return nil, err
 		}
 
-		err = arg.SetNArgs(int(val))
+		err = newARg.SetNArgs(int(nargs))
 		if err != nil {
 			return nil, err
 		}
 	}
-	return arg, nil
+	return newARg, nil
 }
