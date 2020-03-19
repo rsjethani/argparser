@@ -20,9 +20,6 @@ func (p *point) Set(values ...string) error {
 	p.x = int(v)
 
 	v, err = strconv.ParseInt(vals[1], 0, strconv.IntSize)
-	// if err != nil {
-	// 	rerturn numError(err)
-	// }
 	p.y = int(v)
 
 	return nil

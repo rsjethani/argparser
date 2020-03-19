@@ -31,6 +31,18 @@ func DefaultArgSet() *ArgSet {
 	}
 }
 
+func (argSet *ArgSet) Arg(name string) *Argument {
+	if arg, ok := argSet.optArgs[name]; ok {
+		return arg
+	}
+	for _, arg := range argSet.posArgs {
+		if arg.name == name {
+			return arg.arg
+		}
+	}
+	return nil
+}
+
 func (argSet *ArgSet) AddOptional(name string, arg *Argument) {
 	argSet.optArgs[name] = arg
 }
