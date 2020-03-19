@@ -15,7 +15,7 @@ func (p *point) Set(values ...string) error {
 	vals := strings.Split(values[0], ",")
 	v, err := strconv.ParseInt(vals[0], 0, strconv.IntSize)
 	if err != nil {
-		return &ErrArgValue{err, p}
+		return formatParseError(values[0], fmt.Sprintf("%T", *p), err)
 	}
 	p.x = int(v)
 
@@ -42,8 +42,8 @@ func TestTraditionalApproach(t *testing.T) {
 		Salute   string  `argparser:"help=Salutation for the employee|name=salute"`
 		Salary   float64 `argparser:"help=Employee salary|pos=yes|name=salary"`
 		FullName string  `argparser:"pos=yes|name=full-name|help=Full name of the employee|pos=yes"`
-		EmpID    int     `argparser:"name=emp-id|help=Employee ID for new employee|nargs=-45"`
-		// Loc      point   `argparser:"name=point"`
+		EmpID    []int   `argparser:"name=emp-id|help=Employee ID for new employee|nargs=-45"`
+		Loc      point   `argparser:"name=point"`
 		// IsIntern bool    `argparser:"name=is-intern"`
 	}{
 		// EmpID:  -1,
@@ -59,7 +59,7 @@ func TestTraditionalApproach(t *testing.T) {
 	fmt.Printf("\nmainset: %+v\n", mainSet)
 	// fmt.Println(mainSet.Usage())
 
-	// fmt.Printf("\n%+v\n", config)
-	// fmt.Println(mainSet.ParseFrom([]string{"34", "asd", "--is-intern", "--emp-id", "88888888888888888888888888888888"}))
-	// fmt.Printf("\n%+v\n", config)
+	fmt.Printf("\n%+v\n", config)
+	fmt.Println(mainSet.ParseFrom([]string{"3.4", "asd", "--salute", "XXX", "--point", "--emp-id", "88888", "345", "-35"}))
+	fmt.Printf("\n%+v\n", config)
 }

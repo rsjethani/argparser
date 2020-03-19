@@ -12,17 +12,14 @@ type ArgValue interface {
 	IsBoolValue() bool
 }
 
-type ErrArgValue struct {
-	err error
-	val ArgValue
-}
-
-func (e *ErrArgValue) Error() string {
-	ne, ok := e.err.(*strconv.NumError)
-	if !ok {
-		return e.err.Error()
+func formatParseError(val string, typeName string, err error) error {
+	var reason string
+	if ne, ok := err.(*strconv.NumError); ok {
+		reason = ne.Err.Error()
+	} else {
+		reason = err.Error()
 	}
-	return fmt.Sprintf("cannot parse '%s' as '%T': %s", ne.Num, e.val.Get(), ne.Err)
+	return fmt.Errorf("cannot parse '%s' as type '%s': %s", val, typeName, reason)
 }
 
 // NewArgValue checks v's type and returns a compatible type which also
@@ -63,9 +60,12 @@ func NewBool(p *bool) *Bool {
 }
 
 func (b *Bool) Set(values ...string) error {
+	if len(values) == 0 {
+		return nil
+	}
 	v, err := strconv.ParseBool(values[0])
 	if err != nil {
-		return &ErrArgValue{err, b}
+		return formatParseError(values[0], fmt.Sprintf("%T", true), err)
 	}
 	*b = Bool(v)
 	return nil
@@ -88,7 +88,7 @@ func (bl *BoolList) Set(values ...string) error {
 	for i, val := range values {
 		v, err := strconv.ParseBool(val)
 		if err != nil {
-			return &ErrArgValue{err, bl}
+			return formatParseError(val, fmt.Sprintf("%T", true), err)
 		}
 		(*bl)[i] = v
 
@@ -112,9 +112,12 @@ func NewInt(p *int) *Int {
 // implement set like Bool does...do not change pointed value to zero if
 // we get error while converting cmd arg string
 func (i *Int) Set(values ...string) error {
+	if len(values) == 0 {
+		return nil
+	}
 	v, err := strconv.ParseInt(values[0], 0, strconv.IntSize)
 	if err != nil {
-		return &ErrArgValue{err, i}
+		return formatParseError(values[0], fmt.Sprintf("%T", int(1)), err)
 	}
 	*i = Int(v)
 	return nil
@@ -138,7 +141,7 @@ func (il *IntList) Set(values ...string) error {
 	for i, val := range values {
 		n, err := strconv.ParseInt(val, 0, strconv.IntSize)
 		if err != nil {
-			return &ErrArgValue{err, il}
+			return formatParseError(val, fmt.Sprintf("%T", int(1)), err)
 		}
 		(*il)[i] = int(n)
 	}
@@ -158,8 +161,11 @@ func NewString(p *string) *String {
 	return (*String)(p)
 }
 
-func (s *String) Set(val ...string) error {
-	*s = String(val[0])
+func (s *String) Set(values ...string) error {
+	if len(values) == 0 {
+		return nil
+	}
+	*s = String(values[0])
 	return nil
 }
 
@@ -197,10 +203,13 @@ func NewFloat64(p *float64) *Float64 {
 	return (*Float64)(p)
 }
 
-func (f *Float64) Set(s ...string) error {
-	v, err := strconv.ParseFloat(s[0], 64)
+func (f *Float64) Set(values ...string) error {
+	if len(values) == 0 {
+		return nil
+	}
+	v, err := strconv.ParseFloat(values[0], 64)
 	if err != nil {
-		return &ErrArgValue{err, f}
+		return formatParseError(values[0], fmt.Sprintf("%T", float64(1)), err)
 	}
 	*f = Float64(v)
 	return nil
@@ -224,7 +233,7 @@ func (fl *Float64List) Set(values ...string) error {
 	for i, val := range values {
 		f, err := strconv.ParseFloat(val, 64)
 		if err != nil {
-			return &ErrArgValue{err, fl}
+			return formatParseError(val, fmt.Sprintf("%T", float64(1)), err)
 		}
 		(*fl)[i] = f
 	}
