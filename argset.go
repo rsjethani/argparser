@@ -110,7 +110,7 @@ func (argSet *ArgSet) Usage() string {
 	builder.WriteString("Optional Arguments:")
 	for name := range argSet.optArgs {
 		builder.WriteString("\n")
-		builder.WriteString(fmt.Sprintf("%-15s%s", name, argSet.optArgs[name].Help))
+		builder.WriteString(fmt.Sprintf("%-15s%s. Default: %s", name, argSet.optArgs[name].Help, argSet.optArgs[name].Value))
 	}
 	return builder.String()
 }

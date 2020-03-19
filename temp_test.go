@@ -43,7 +43,7 @@ func TestTraditionalApproach(t *testing.T) {
 		Salary   float64 `argparser:"help=Employee salary|pos=yes|name=salary"`
 		FullName string  `argparser:"pos=yes|name=full-name|help=Full name of the employee|pos=yes"`
 		EmpID    []int   `argparser:"name=emp-id|help=Employee ID for new employee|nargs=-45"`
-		Loc      point   `argparser:"name=point"`
+		Loc      point   `argparser:"name=point|help=coordinates"`
 		IsIntern bool    `argparser:"name=is-intern|help=Is the new employee an intern"`
 	}{
 		// EmpID:  -1,
@@ -56,8 +56,11 @@ func TestTraditionalApproach(t *testing.T) {
 	}
 	mainSet.Description = "CLI for managing employee database"
 
-	fmt.Printf("\nBEFORE parsing: %+v\n", config)
 	parser := NewArgParser(mainSet)
+	fmt.Println(parser.mainArgSet.Usage())
+
+	fmt.Printf("\nBEFORE parsing: %+v\n", config)
 	fmt.Println(parser.ParseFrom([]string{"3.4", "asd", "--salute", "XXX", "--point", "5,-7", "--emp-id", "88888", "345", "-35"}))
 	fmt.Printf("\nAFTER parsing: %+v\n", config)
+
 }
