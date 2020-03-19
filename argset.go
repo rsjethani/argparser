@@ -38,21 +38,21 @@ func (argSet *ArgSet) AddPositional(name string, arg *Argument) {
 	argSet.posArgs = append(argSet.posArgs, posArgWithName{name: name, arg: arg})
 }
 
-func (argset *ArgSet) addArgument(name string, argVal ArgValue, argAttrs map[string]string) error {
-	argName := argAttrs["name"]
+// func (argset *ArgSet) addArgument(name string, argVal ArgValue, argAttrs map[string]string) error {
+// 	argName := argAttrs["name"]
 
-	argHelp := argAttrs["help"]
+// 	argHelp := argAttrs["help"]
 
-	// check whether user wants positional or optional argument and process accordinly
-	if _, wantsPos := argAttrs["pos"]; wantsPos {
-		// TODO: verify value of 'positional is yes/true only'
-		argset.AddPositional(argName, NewPosArg(argVal, argHelp))
+// 	// check whether user wants positional or optional argument and process accordinly
+// 	if _, wantsPos := argAttrs["pos"]; wantsPos {
+// 		// TODO: verify value of 'positional is yes/true only'
+// 		argset.AddPositional(argName, NewPosArg(argVal, argHelp))
 
-	} else { // user wants optional argument
-		argset.AddOptional("--"+argName, NewOptArg(argVal, argHelp))
-	}
-	return nil
-}
+// 	} else { // user wants optional argument
+// 		argset.AddOptional("--"+argName, NewOptArg(argVal, argHelp))
+// 	}
+// 	return nil
+// }
 
 func NewArgSet(src interface{}) (*ArgSet, error) {
 	// get Type data of src, verify that it is of pointer type
@@ -71,20 +71,19 @@ func NewArgSet(src interface{}) (*ArgSet, error) {
 	srcVal := reflect.ValueOf(src).Elem()
 
 	newArgSet := DefaultArgSet()
-	// iterate over all fields of the struct, parse the value of 'argparse' tag
-	// and create arguments accordingly. Skip any field not tagged with 'argparse'
+	// iterate over all fields of the struct, parse the value of 'argparser' tag
+	// and create arguments accordingly. Skip any field not tagged with 'argparser'
 	for i := 0; i < srcTyp.NumField(); i++ {
 		fieldType := srcTyp.Field(i)
 		fieldVal := srcVal.Field(i)
-		tagValue, tagged := srcTyp.Field(i).Tag.Lookup(tagKey)
+		structTags, tagged := srcTyp.Field(i).Tag.Lookup(tagKey)
 		if !tagged {
 			continue
 		}
 
-		// create map of user provided tag values
-		argAttrs, err := parseStructTag(tagValue)
+		tags, err := parseTags(structTags)
 		if err != nil {
-			return nil, fmt.Errorf("Error while parsing tags for field '%s': %s", fieldType.Name, err)
+			return nil, fmt.Errorf("Error while creating argument from field '%s': %s", fieldType.Name, err)
 		}
 
 		argVal, err := NewArgValue(fieldVal.Addr().Interface())
@@ -93,9 +92,17 @@ func NewArgSet(src interface{}) (*ArgSet, error) {
 
 		}
 
-		err = newArgSet.addArgument(fieldType.Name, argVal, argAttrs)
+		// create map of user provided tag values
+		arg, err := newArgFromTags(argVal, tags)
 		if err != nil {
-			return nil, fmt.Errorf("Error while adding argument: %s", err)
+			return nil, fmt.Errorf("Error while creating argument from field '%s': %s", fieldType.Name, err)
+		}
+		fmt.Printf("\n%+v\n", arg)
+
+		if arg.Positional {
+			newArgSet.AddPositional(tags["name"], arg)
+		} else {
+			newArgSet.AddOptional("--"+tags["name"], arg)
 		}
 	}
 
