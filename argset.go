@@ -182,6 +182,13 @@ func (argSet *ArgSet) ParseFrom(args []string) error {
 			if argSet.optArgs[curArg].Value.IsBoolValue() {
 				argSet.optArgs[curArg].Value.Set("true")
 				argsIndex++
+			} else if argSet.optArgs[curArg].nArgs < 0 {
+				fmt.Println(args[argsIndex+1:])
+				if err := argSet.optArgs[curArg].Value.Set(args[argsIndex+1:]...); err != nil {
+					return fmt.Errorf("error while setting option '%s': %s", curArg, err)
+				}
+				argsIndex = len(args)
+
 			} else {
 				inp := []string{}
 				for i := 1; i <= argSet.optArgs[curArg].nArgs; i++ {
