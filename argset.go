@@ -7,9 +7,7 @@ import (
 )
 
 const (
-	tagKey         string = "argparser"
-	tagValueSep    string = ","
-	mapKeyValueSep string = "="
+	packageTag string = "argparser"
 )
 
 type posArgWithName struct {
@@ -60,7 +58,7 @@ func NewArgSet(src interface{}) (*ArgSet, error) {
 	for i := 0; i < srcTyp.NumField(); i++ {
 		fieldType := srcTyp.Field(i)
 		fieldVal := srcVal.Field(i)
-		structTags, tagged := srcTyp.Field(i).Tag.Lookup(tagKey)
+		structTags, tagged := srcTyp.Field(i).Tag.Lookup(packageTag)
 		if !tagged {
 			continue
 		}

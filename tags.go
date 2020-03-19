@@ -7,18 +7,23 @@ import (
 	"strings"
 )
 
+const (
+	tagSep         string = "|"
+	tagKeyValueSep string = "="
+)
+
 var validTags = map[string]*regexp.Regexp{
-	"name":  regexp.MustCompile(`^name=([[:alnum:]-]+)$`),
-	"pos":   regexp.MustCompile(`^pos=(yes)$`),
-	"help":  regexp.MustCompile(`^help=([^|]+)$`),
-	"nargs": regexp.MustCompile(`^nargs=(-?[[:digit:]]+)$`),
+	"name":  regexp.MustCompile(fmt.Sprintf(`^name%s([[:alnum:]-]+)$`, tagKeyValueSep)),
+	"pos":   regexp.MustCompile(fmt.Sprintf(`^pos%s(yes)$`, tagKeyValueSep)),
+	"help":  regexp.MustCompile(fmt.Sprintf(`^help%s([^%s]+)$`, tagKeyValueSep, tagSep)),
+	"nargs": regexp.MustCompile(fmt.Sprintf(`^nargs%s(-?[[:digit:]]+)$`, tagKeyValueSep)),
 	// "mutex":      nil,
 	// "short":      nil,
 }
 
 func parseTags(structTags string) (map[string]string, error) {
 	tagValues := make(map[string]string)
-	tags := strings.Split(structTags, "|")
+	tags := strings.Split(structTags, tagSep)
 	for _, tag := range tags {
 		if tag == "" {
 			continue

@@ -60,6 +60,6 @@ func TestTraditionalApproach(t *testing.T) {
 	// fmt.Println(mainSet.Usage())
 
 	fmt.Printf("\n%+v\n", config)
-	fmt.Println(mainSet.ParseFrom([]string{"3.4", "asd", "--salute", "XXX", "--point", "--emp-id", "88888", "345", "-35"}))
+	fmt.Println(mainSet.ParseFrom([]string{"3.4", "asd", "--salute", "XXX", "--point", "5,-7", "--emp-id", "88888", "345", "-35"}))
 	fmt.Printf("\n%+v\n", config)
 }

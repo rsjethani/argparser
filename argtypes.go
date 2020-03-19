@@ -4,13 +4,11 @@ import (
 	"fmt"
 )
 
-const UnlimitedNArgs int = -1
-
 type Argument struct {
 	Value      ArgValue
 	Help       string
 	Positional bool
-	nArgs      int // later convert to string for patterns like '*', '+'
+	nArgs      int // TODO: convert to string for patterns like '*', '+' etc.
 }
 
 func NewPosArg(value ArgValue, help string) *Argument {
