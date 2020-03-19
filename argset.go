@@ -79,7 +79,6 @@ func NewArgSet(src interface{}) (*ArgSet, error) {
 		if err != nil {
 			return nil, fmt.Errorf("Error while creating argument from field '%s': %s", fieldType.Name, err)
 		}
-		fmt.Printf("\n%+v\n", arg)
 
 		if arg.Positional {
 			newArgSet.AddPositional(tags["name"], arg)
@@ -101,6 +100,7 @@ func (argSet *ArgSet) Usage() string {
 	builder.WriteString("Positional Arguments:")
 	for _, p := range argSet.posArgs {
 		builder.WriteString("\n")
+		//fmt.Sprintf("\n%-[2]*[1]s",p.Name,argSet.largestName)
 		builder.WriteString(fmt.Sprintf("%-15s%s", p.name, p.arg.Help))
 	}
 	builder.WriteString("\n\n")
@@ -135,7 +135,6 @@ func (argSet *ArgSet) ParseFrom(args []string) error {
 	for {
 		switch curState {
 		case stateInit:
-			fmt.Println("init")
 			arg := getArg(argsIndex)
 			if arg == "" {
 				curState = stateNoArgsLeft
@@ -167,7 +166,6 @@ func (argSet *ArgSet) ParseFrom(args []string) error {
 			// is an undefined positional arg
 			return fmt.Errorf("Unknown positional argument: %s", curArg)
 		case statePosArg:
-			fmt.Println("pos")
 			if err := argSet.posArgs[posIndex].arg.Value.Set(curArg); err != nil {
 				return fmt.Errorf("error while setting option '%s': %s", argSet.posArgs[posIndex].name, err)
 			}
@@ -176,12 +174,10 @@ func (argSet *ArgSet) ParseFrom(args []string) error {
 			argsIndex++
 			curState = stateInit
 		case stateOptArg:
-			fmt.Println("opt")
 			if argSet.optArgs[curArg].Value.IsBoolValue() {
 				argSet.optArgs[curArg].Value.Set("true")
 				argsIndex++
 			} else if argSet.optArgs[curArg].nArgs < 0 {
-				fmt.Println(args[argsIndex+1:])
 				if err := argSet.optArgs[curArg].Value.Set(args[argsIndex+1:]...); err != nil {
 					return fmt.Errorf("error while setting option '%s': %s", curArg, err)
 				}
@@ -203,7 +199,6 @@ func (argSet *ArgSet) ParseFrom(args []string) error {
 			}
 			curState = stateInit
 		case stateNoArgsLeft:
-			fmt.Println("no args")
 			for _, pos := range argSet.posArgs {
 				if !visited[pos.name] {
 					return fmt.Errorf("Error: value for positional argument '%s' not given", pos.name)
