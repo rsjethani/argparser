@@ -20,6 +20,9 @@ type ArgSet struct {
 	posArgs     []posArgWithName
 	optArgs     map[string]*Argument
 	// largestName int
+	// mutex
+	// choices
+	//short option
 }
 
 func DefaultArgSet() *ArgSet {
