@@ -31,26 +31,6 @@ func DefaultArgSet() *ArgSet {
 	}
 }
 
-func (argSet *ArgSet) Arg(name string) *Argument {
-	if arg, ok := argSet.optArgs[name]; ok {
-		return arg
-	}
-	for _, arg := range argSet.posArgs {
-		if arg.name == name {
-			return arg.arg
-		}
-	}
-	return nil
-}
-
-func (argSet *ArgSet) AddOptional(name string, arg *Argument) {
-	argSet.optArgs[name] = arg
-}
-
-func (argSet *ArgSet) AddPositional(name string, arg *Argument) {
-	argSet.posArgs = append(argSet.posArgs, posArgWithName{name: name, arg: arg})
-}
-
 func NewArgSet(src interface{}) (*ArgSet, error) {
 	// get Type data of src, verify that it is of pointer type
 	srcTyp := reflect.TypeOf(src)
@@ -86,23 +66,37 @@ func NewArgSet(src interface{}) (*ArgSet, error) {
 		argVal, err := NewValue(fieldVal.Addr().Interface())
 		if err != nil {
 			return nil, fmt.Errorf("Error while creating argument from field '%s': %s", fieldType.Name, err)
-
 		}
 
-		// create map of user provided tag values
 		arg, err := newArgFromTags(argVal, tags)
 		if err != nil {
 			return nil, fmt.Errorf("Error while creating argument from field '%s': %s", fieldType.Name, err)
 		}
 
-		if arg.IsPositional() {
-			newArgSet.AddPositional(tags["name"], arg)
-		} else {
-			newArgSet.AddOptional("--"+tags["name"], arg)
-		}
+		newArgSet.AddArgument(tags["name"], arg)
 	}
 
 	return newArgSet, nil
+}
+
+func (argSet *ArgSet) Arg(name string) *Argument {
+	if arg, ok := argSet.optArgs[name]; ok {
+		return arg
+	}
+	for _, arg := range argSet.posArgs {
+		if arg.name == name {
+			return arg.arg
+		}
+	}
+	return nil
+}
+
+func (argSet *ArgSet) AddArgument(name string, arg *Argument) {
+	if arg.IsPositional() {
+		argSet.posArgs = append(argSet.posArgs, posArgWithName{name: name, arg: arg})
+		return
+	}
+	argSet.optArgs["--"+name] = arg
 }
 
 func (argSet *ArgSet) Usage() string {
