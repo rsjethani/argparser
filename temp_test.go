@@ -39,11 +39,11 @@ func TestTraditionalApproach(t *testing.T) {
 		Salute   string  `argparser:"help=Salutation for the employee|name=salute"`
 		Salary   float64 `argparser:"help=Employee salary|pos=yes|name=salary"`
 		FullName string  `argparser:"pos=yes|name=full-name|help=Full name of the employee|pos=yes"`
-		EmpID    []int   `argparser:"name=emp-id|help=Employee ID for new employee|nargs=-45"`
+		EmpID    []int   `argparser:"name=emp-id|help=Employee ID for new employee|nargs=3"`
 		Loc      point   `argparser:"name=point|help=coordinates"`
-		IsIntern bool    `argparser:"name=is-intern|help=Is the new employee an intern"`
+		IsIntern bool    `argparser:"name=is-intern|help=Is the new employee an intern|nargs=0"`
 	}{
-		// EmpID:  -1,
+		EmpID:  []int{-1},
 		Salute: "Mr.",
 	}
 
@@ -57,7 +57,7 @@ func TestTraditionalApproach(t *testing.T) {
 	fmt.Println(parser.mainArgSet.Usage())
 
 	fmt.Printf("\nBEFORE parsing: %+v\n", config)
-	fmt.Println(parser.ParseFrom([]string{"3.4", "asd", "--salute", "XXX", "--point", "5,-7", "--is-intern", "--emp-id", "88888", "345", "-35"}))
+	fmt.Println(parser.ParseFrom([]string{"3.4", "asd", "--salute", "XXX", "--point", "5,-7", "--is-intern", "--emp-id", "88888", "345", "33", "vd"}))
 	fmt.Printf("\nAFTER parsing: %+v\n", config)
 
 }
