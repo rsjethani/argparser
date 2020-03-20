@@ -22,7 +22,7 @@ func NewPosArg(value Value, help string) *Argument {
 
 func NewOptArg(value Value, help string) *Argument {
 	nargs := 1
-	if value.IsBoolValue() {
+	if value.IsSwitch() {
 		nargs = 0
 	}
 	return &Argument{
@@ -33,7 +33,7 @@ func NewOptArg(value Value, help string) *Argument {
 }
 
 func (arg *Argument) SetNArgs(n int) error {
-	if arg.Value.IsBoolValue() && !arg.Positional {
+	if arg.Value.IsSwitch() && !arg.Positional {
 		return fmt.Errorf("cannot change nargs for optional bool argument, it is always 0")
 	}
 	if n == 0 {

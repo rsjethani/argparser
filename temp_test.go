@@ -32,7 +32,7 @@ func (p *point) String() string {
 	return fmt.Sprintf("%d,%d", p.x, p.y)
 }
 
-func (p *point) IsBoolValue() bool { return false }
+func (p *point) IsSwitch() bool { return false }
 
 func TestTraditionalApproach(t *testing.T) {
 	config := struct {
