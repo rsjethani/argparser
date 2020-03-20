@@ -61,7 +61,8 @@ func NewBool(p *bool) *Bool {
 
 func (b *Bool) Set(values ...string) error {
 	if len(values) == 0 {
-		return nil
+		// since Bool is a switch type calling Set() without args should set it to true
+		values = append(values, "true")
 	}
 	v, err := strconv.ParseBool(values[0])
 	if err != nil {

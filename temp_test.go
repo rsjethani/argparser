@@ -57,7 +57,7 @@ func TestTraditionalApproach(t *testing.T) {
 	fmt.Println(parser.mainArgSet.Usage())
 
 	fmt.Printf("\nBEFORE parsing: %+v\n", config)
-	fmt.Println(parser.ParseFrom([]string{"3.4", "asd", "--salute", "XXX", "--point", "5,-7", "--emp-id", "88888", "345", "-35"}))
+	fmt.Println(parser.ParseFrom([]string{"3.4", "asd", "--salute", "XXX", "--point", "5,-7", "--is-intern", "--emp-id", "88888", "345", "-35"}))
 	fmt.Printf("\nAFTER parsing: %+v\n", config)
 
 }

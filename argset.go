@@ -190,7 +190,7 @@ func (argSet *ArgSet) ParseFrom(args []string) error {
 			curState = stateInit
 		case stateOptArg:
 			if argSet.optArgs[curArg].Value.IsBoolValue() {
-				argSet.optArgs[curArg].Value.Set("true")
+				argSet.optArgs[curArg].Value.Set()
 				argsIndex++
 			} else if argSet.optArgs[curArg].nArgs < 0 {
 				if err := argSet.optArgs[curArg].Value.Set(args[argsIndex+1:]...); err != nil {
