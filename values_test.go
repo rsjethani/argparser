@@ -86,6 +86,32 @@ func TestUnsupportedTypeValueCreation(t *testing.T) {
 	}
 }
 
+func TestStringType(t *testing.T) {
+	var testVar string
+	arg := argparser.NewString(&testVar)
+
+	data := []struct {
+		input    string
+		expected string
+	}{
+		{"hello", "hello"},
+		{"", ""},
+	}
+
+	// Test valid values
+	for _, val := range data {
+		if err := arg.Set(val.input); err != nil {
+			t.Errorf("Expected: no error, Got: error '%s' for input \"%s\"", err, val.input)
+		}
+		if val.expected != testVar {
+			t.Errorf("Expected: %v, Got: %v", val.expected, testVar)
+		}
+		if val.input != arg.String() {
+			t.Errorf("Expected: %v, Got: %v", val.input, arg.String())
+		}
+	}
+}
+
 func TestBoolType(t *testing.T) {
 	var testVar bool
 	arg := argparser.NewBool(&testVar)
@@ -116,12 +142,33 @@ func TestBoolType(t *testing.T) {
 			t.Errorf("Expected: %v, Got: %v", val.input, arg.String())
 		}
 	}
+}
 
-	// Test invalid values
-	for _, input := range []string{"tRUe", "hello", "1.1"} {
-		if err := arg.Set(input); err == nil {
-			t.Errorf("Expected: error, Got: no error for input \"%s\"", input)
+func TestStringListType(t *testing.T) {
+	var testVar []string
+	arg := argparser.NewStringList(&testVar)
+	data := struct {
+		input    []string
+		expected []string
+	}{
+		input:    []string{"hello", ""},
+		expected: []string{"hello", ""},
+	}
+
+	// Test valid values
+	// check that all values from expected are set without error
+	if err := arg.Set(data.input...); err != nil {
+		t.Errorf("Expected: no error, Got: error '%s' for input \"%s\"", err, data.input)
+	}
+	// check whether each value in expected is same as set in testVar
+	for i, _ := range data.expected {
+		if data.expected[i] != testVar[i] {
+			t.Errorf("Expected: %v, Got: %v", data.expected[i], testVar[i])
 		}
+	}
+	// check whether string representation on input is same as that of arg
+	if fmt.Sprint(data.input) != arg.String() {
+		t.Errorf("Expected: %v, Got: %v", data.input, arg.String())
 	}
 }
 
