@@ -5,13 +5,13 @@ import (
 )
 
 type Argument struct {
-	Value      ArgValue
+	Value      Value
 	Help       string
 	Positional bool
 	nArgs      int // TODO: convert to string for patterns like '*', '+' etc.
 }
 
-func NewPosArg(value ArgValue, help string) *Argument {
+func NewPosArg(value Value, help string) *Argument {
 	return &Argument{
 		nArgs:      1,
 		Value:      value,
@@ -20,7 +20,7 @@ func NewPosArg(value ArgValue, help string) *Argument {
 	}
 }
 
-func NewOptArg(value ArgValue, help string) *Argument {
+func NewOptArg(value Value, help string) *Argument {
 	nargs := 1
 	if value.IsBoolValue() {
 		nargs = 0

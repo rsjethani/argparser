@@ -5,7 +5,7 @@ import (
 	"strconv"
 )
 
-type ArgValue interface {
+type Value interface {
 	Set(...string) error
 	// Get() interface{}
 	String() string
@@ -22,14 +22,14 @@ func formatParseError(val string, typeName string, err error) error {
 	return fmt.Errorf("cannot parse '%s' as type '%s': %s", val, typeName, reason)
 }
 
-// NewArgValue checks v's type and returns a compatible type which also
+// NewValue checks v's type and returns a compatible type which also
 // implements ArgValue interface. All supported types are pointer to some type.
 // It returns error if v is of unknown or unsupported type.
-func NewArgValue(v interface{}) (ArgValue, error) {
+func NewValue(v interface{}) (Value, error) {
 	// if the underlying pointer type is one of the supported types then convert it to a
 	// ArgValue compatible type.
 	switch addr := v.(type) {
-	case ArgValue: // the type itself implements ArgValue hence simply return addr
+	case Value: // the type itself implements Value interface hence simply return addr
 		return addr, nil
 	case *bool:
 		return NewBool(addr), nil

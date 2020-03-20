@@ -83,7 +83,7 @@ func NewArgSet(src interface{}) (*ArgSet, error) {
 			return nil, fmt.Errorf("Error while creating argument from field '%s': %s", fieldType.Name, err)
 		}
 
-		argVal, err := NewArgValue(fieldVal.Addr().Interface())
+		argVal, err := NewValue(fieldVal.Addr().Interface())
 		if err != nil {
 			return nil, fmt.Errorf("Error while creating argument from field '%s': %s", fieldType.Name, err)
 

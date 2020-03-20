@@ -61,9 +61,9 @@ func TestSupportedTypeValueCreation(t *testing.T) {
 		new([]time.Duration),
 	}
 	for _, val := range supported {
-		_, err := argparser.NewArgValue(val)
+		_, err := argparser.NewValue(val)
 		if err != nil {
-			t.Errorf("Expected: NewArgValue(%T) should succeed, Got: %s", val, err)
+			t.Errorf("Expected: NewValue(%T) should succeed, Got: %s", val, err)
 		}
 	}
 }
@@ -71,7 +71,7 @@ func TestSupportedTypeValueCreation(t *testing.T) {
 func TestUnsupportedTypeValueCreation(t *testing.T) {
 	type unsupported struct{}
 	var x unsupported
-	val, err := argparser.NewArgValue(&x)
+	val, err := argparser.NewValue(&x)
 	if err == nil {
 		t.Errorf("Expected: unsupported type error , Got: value of %T type", val)
 	}

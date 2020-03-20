@@ -47,7 +47,7 @@ func parseTags(structTags string) (map[string]string, error) {
 	return tagValues, nil
 }
 
-func newArgFromTags(value ArgValue, tags map[string]string) (*Argument, error) {
+func newArgFromTags(value Value, tags map[string]string) (*Argument, error) {
 	var newARg *Argument
 	if tags["pos"] == "yes" {
 		newARg = NewPosArg(value, tags["help"])
