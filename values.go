@@ -9,7 +9,7 @@ type Value interface {
 	Set(...string) error
 	// Get() interface{}
 	String() string
-	IsSwitch() bool
+	// IsSwitch() bool
 }
 
 func formatParseError(val string, typeName string, err error) error {
