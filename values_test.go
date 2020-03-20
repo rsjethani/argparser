@@ -2,6 +2,7 @@ package argparser_test
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 	"strings"
 	"testing"
@@ -45,7 +46,7 @@ func (p *point) String() string {
 	return fmt.Sprintf("%d,%d", p.x, p.y)
 }
 
-func (p *point) IsBoolValue() bool { return false }
+func (p *point) IsSwitch() bool { return false }
 
 func TestSupportedTypeValueCreation(t *testing.T) {
 	// Test value creation for types implementing ArgValue interface
@@ -88,6 +89,12 @@ func TestUnsupportedTypeValueCreation(t *testing.T) {
 func TestBoolType(t *testing.T) {
 	var testVar bool
 	arg := argparser.NewBool(&testVar)
+
+	// Test Set() with no arguments
+	arg.Set()
+	if testVar != true {
+		t.Errorf("Expected: true, Got: %v", testVar)
+	}
 
 	data := []struct {
 		input    string
@@ -217,7 +224,78 @@ func TestIntListType(t *testing.T) {
 	}
 
 	// Test invalid values
-	input := []string{"hello", "1.1", "true", "666666666666666666666666"}
+	input := []string{"hello", "100", "true", "666666666666666666666666"}
+	if err := arg.Set(input...); err == nil {
+		t.Errorf("Expected: error, Got: no error for input \"%s\"", input)
+	}
+}
+
+func TestFloat64Type(t *testing.T) {
+	var testVar float64
+	arg := argparser.NewFloat64(&testVar)
+
+	data := []struct {
+		input    string
+		expected float64
+	}{
+		{"0", 0},
+		{"100", 100.00},
+		{"10.11", 10.11},
+		{"-10.11", -10.11},
+		{fmt.Sprint(math.MaxFloat64), math.MaxFloat64},
+		{fmt.Sprint(math.SmallestNonzeroFloat64), math.SmallestNonzeroFloat64},
+	}
+
+	// Test valid values
+	for _, val := range data {
+		if err := arg.Set(val.input); err != nil {
+			t.Errorf("Expected: no error, Got: error '%s' for input \"%s\"", err, val.input)
+		}
+		if val.expected != testVar {
+			t.Errorf("Expected: %v, Got: %v", val.expected, testVar)
+		}
+		if val.input != arg.String() {
+			t.Errorf("Expected: %v, Got: %v", val.input, arg.String())
+		}
+	}
+
+	// Test invalid values
+	for _, input := range []string{"hello", "1.1xx", "true", "100abcd"} {
+		if err := arg.Set(input); err == nil {
+			t.Errorf("Expected: error, Got: no error for input \"%s\"", input)
+		}
+	}
+}
+
+func TestFloat64ListType(t *testing.T) {
+	var testVar []float64
+	arg := argparser.NewFloat64List(&testVar)
+	data := struct {
+		input    []string
+		expected []float64
+	}{
+		input:    []string{"0", "100", "10.11", "-10.11", fmt.Sprint(math.MaxFloat64), fmt.Sprint(math.SmallestNonzeroFloat64)},
+		expected: []float64{0, 100.00, 10.11, -10.11, math.MaxFloat64, math.SmallestNonzeroFloat64},
+	}
+
+	// Test valid values
+	// check that all values from expected are set without error
+	if err := arg.Set(data.input...); err != nil {
+		t.Errorf("Expected: no error, Got: error '%s' for input \"%s\"", err, data.input)
+	}
+	// check whether each value in expected is same as set in testVar
+	for i, _ := range data.expected {
+		if data.expected[i] != testVar[i] {
+			t.Errorf("Expected: %v, Got: %v", data.expected[i], testVar[i])
+		}
+	}
+	// check whether string representation on input is same as that of arg
+	if fmt.Sprint(data.input) != arg.String() {
+		t.Errorf("Expected: %v, Got: %v", data.input, arg.String())
+	}
+
+	// Test invalid values
+	input := []string{"hello", "1.1", "true", "66666666666"}
 	if err := arg.Set(input...); err == nil {
 		t.Errorf("Expected: error, Got: no error for input \"%s\"", input)
 	}
