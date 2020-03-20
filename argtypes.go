@@ -7,7 +7,7 @@ import (
 type Argument struct {
 	Value      Value
 	Help       string
-	Positional bool
+	positional bool
 	nArgs      int // TODO: convert to string for patterns like '*', '+' etc.
 }
 
@@ -16,28 +16,39 @@ func NewPosArg(value Value, help string) *Argument {
 		nArgs:      1,
 		Value:      value,
 		Help:       help,
-		Positional: true,
+		positional: true,
 	}
 }
 
 func NewOptArg(value Value, help string) *Argument {
-	nargs := 1
-	if value.IsSwitch() {
-		nargs = 0
-	}
 	return &Argument{
-		nArgs: nargs,
-		Value: value,
-		Help:  help,
+		nArgs:      1,
+		Value:      value,
+		Help:       help,
+		positional: false,
 	}
 }
 
-func (arg *Argument) SetNArgs(n int) error {
-	if arg.Value.IsSwitch() && !arg.Positional {
-		return fmt.Errorf("cannot change nargs for optional bool argument, it is always 0")
+func NewSwitchArg(value Value, help string) *Argument {
+	return &Argument{
+		nArgs:      0,
+		Value:      value,
+		Help:       help,
+		positional: false,
 	}
-	if n == 0 {
-		return fmt.Errorf("nargs cannot be zero for non boolean argument")
+}
+
+func (arg *Argument) IsPositional() bool {
+	return arg.positional
+}
+
+func (arg *Argument) NArgs() int {
+	return arg.nArgs
+}
+
+func (arg *Argument) SetNArgs(n int) error {
+	if n == 0 && arg.positional {
+		return fmt.Errorf("nargs cannot be 0 for positional argument")
 	}
 	arg.nArgs = n
 	return nil

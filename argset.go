@@ -95,7 +95,7 @@ func NewArgSet(src interface{}) (*ArgSet, error) {
 			return nil, fmt.Errorf("Error while creating argument from field '%s': %s", fieldType.Name, err)
 		}
 
-		if arg.Positional {
+		if arg.IsPositional() {
 			newArgSet.AddPositional(tags["name"], arg)
 		} else {
 			newArgSet.AddOptional("--"+tags["name"], arg)
@@ -192,7 +192,7 @@ func (argSet *ArgSet) ParseFrom(args []string) error {
 			if argSet.optArgs[curArg].Value.IsSwitch() {
 				argSet.optArgs[curArg].Value.Set()
 				argsIndex++
-			} else if argSet.optArgs[curArg].nArgs < 0 {
+			} else if argSet.optArgs[curArg].NArgs() < 0 {
 				if err := argSet.optArgs[curArg].Value.Set(args[argsIndex+1:]...); err != nil {
 					return fmt.Errorf("error while setting option '%s': %s", curArg, err)
 				}
@@ -200,17 +200,17 @@ func (argSet *ArgSet) ParseFrom(args []string) error {
 
 			} else {
 				inp := []string{}
-				for i := 1; i <= argSet.optArgs[curArg].nArgs; i++ {
+				for i := 1; i <= argSet.optArgs[curArg].NArgs(); i++ {
 					v := getArg(i + argsIndex)
 					if v == "" {
-						return fmt.Errorf("invalid no. of arguments for option '%s'; required: %d, given: %d", curArg, argSet.optArgs[curArg].nArgs, i-1)
+						return fmt.Errorf("invalid no. of arguments for option '%s'; required: %d, given: %d", curArg, argSet.optArgs[curArg].NArgs(), i-1)
 					}
 					inp = append(inp, v)
 				}
 				if err := argSet.optArgs[curArg].Value.Set(inp...); err != nil {
 					return fmt.Errorf("error while setting option '%s': %s", curArg, err)
 				}
-				argsIndex += argSet.optArgs[curArg].nArgs + 1
+				argsIndex += argSet.optArgs[curArg].NArgs() + 1
 			}
 			curState = stateInit
 		case stateNoArgsLeft:
