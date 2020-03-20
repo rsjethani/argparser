@@ -42,6 +42,7 @@ func TestTraditionalApproach(t *testing.T) {
 		EmpID    []int   `argparser:"name=emp-id|help=Employee ID for new employee|nargs=3"`
 		Loc      point   `argparser:"name=point|help=coordinates"`
 		IsIntern bool    `argparser:"name=is-intern|help=Is the new employee an intern|nargs=0"`
+		// IsIntern bool    `argparser:"name=is-intern|help=Is the new employee an intern|nargs=99999999999999999999"`
 	}{
 		EmpID:  []int{-1},
 		Salute: "Mr.",

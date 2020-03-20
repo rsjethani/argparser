@@ -12,16 +12,6 @@ type Value interface {
 	// IsSwitch() bool
 }
 
-func formatParseError(val string, typeName string, err error) error {
-	var reason string
-	if ne, ok := err.(*strconv.NumError); ok {
-		reason = ne.Err.Error()
-	} else {
-		reason = err.Error()
-	}
-	return fmt.Errorf("cannot parse '%s' as type '%s': %s", val, typeName, reason)
-}
-
 // NewValue checks v's type and returns a compatible type which also
 // implements ArgValue interface. All supported types are pointer to some type.
 // It returns error if v is of unknown or unsupported type.

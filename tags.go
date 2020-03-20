@@ -58,7 +58,7 @@ func newArgFromTags(value Value, tags map[string]string) (*Argument, error) {
 	if tags["nargs"] != "" {
 		nargs, err := strconv.ParseInt(tags["nargs"], 0, strconv.IntSize)
 		if err != nil {
-			return nil, err
+			return nil, formatParseError(tags["nargs"], fmt.Sprintf("%T", int(1)), err)
 		}
 
 		err = newARg.SetNArgs(int(nargs))
