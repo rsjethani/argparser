@@ -127,7 +127,7 @@ func TestBoolListType(t *testing.T) {
 		if err := arg.Set(val.input...); err != nil {
 			t.Errorf("Expected: no error, Got: error '%s' for input \"%s\"", err, val.input)
 		}
-		// check whether each bool value in expected is same as set in testVar
+		// check whether each value in expected is same as set in testVar
 		for i, _ := range val.expected {
 			if val.expected[i] != testVar[i] {
 				t.Errorf("Expected: %v, Got: %v", val.expected[i], testVar[i])
@@ -145,4 +145,42 @@ func TestBoolListType(t *testing.T) {
 		t.Errorf("Expected: error, Got: no error for input \"%s\"", input)
 	}
 
+}
+
+func TestIntType(t *testing.T) {
+	var testVar int
+	arg := argparser.NewInt(&testVar)
+
+	maxInt := int(^uint(0) >> 1)
+	minInt := -maxInt - 1
+	data := []struct {
+		input    string
+		expected int
+	}{
+		{"0", 0},
+		{"10", 10},
+		{"-10", -10},
+		{fmt.Sprint(maxInt), maxInt},
+		{fmt.Sprint(minInt), minInt},
+	}
+
+	// Test valid values
+	for _, val := range data {
+		if err := arg.Set(val.input); err != nil {
+			t.Errorf("Expected: no error, Got: error '%s' for input \"%s\"", err, val.input)
+		}
+		if val.expected != testVar {
+			t.Errorf("Expected: %v, Got: %v", val.expected, testVar)
+		}
+		if val.input != arg.String() {
+			t.Errorf("Expected: %v, Got: %v", val.input, arg.String())
+		}
+	}
+
+	// Test invalid values
+	for _, input := range []string{"hello", "1.1", "true", "666666666666666666666666"} {
+		if err := arg.Set(input); err == nil {
+			t.Errorf("Expected: error, Got: no error for input \"%s\"", input)
+		}
+	}
 }
