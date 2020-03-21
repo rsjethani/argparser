@@ -55,7 +55,7 @@ func TestTraditionalApproach(t *testing.T) {
 	mainSet.Description = "CLI for managing employee database"
 
 	parser := NewArgParser(mainSet)
-	fmt.Println(parser.mainArgSet.Usage())
+	parser.Usage()
 
 	fmt.Printf("\nBEFORE parsing: %+v\n", config)
 	fmt.Println(parser.ParseFrom([]string{"3.4", "asd", "--salute", "XXX", "--point", "5,-7", "--is-intern", "--emp-id", "88888", "345", "33"}))
