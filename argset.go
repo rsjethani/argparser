@@ -7,7 +7,12 @@ import (
 )
 
 const (
-	packageTag string = "argparser"
+	stateInit int = iota
+	statePosArg
+	stateOptArg
+	stateNoArgsLeft
+	optArgPrefix string = "--"
+	packageTag   string = "argparser"
 )
 
 type posArgWithName struct {
@@ -96,7 +101,7 @@ func (argSet *ArgSet) AddArgument(name string, arg *Argument) {
 		argSet.posArgs = append(argSet.posArgs, posArgWithName{name: name, arg: arg})
 		return
 	}
-	argSet.optArgs["--"+name] = arg
+	argSet.optArgs[optArgPrefix+name] = arg
 }
 
 func (argSet *ArgSet) Usage() string {
@@ -120,13 +125,6 @@ func (argSet *ArgSet) Usage() string {
 	}
 	return builder.String()
 }
-
-const (
-	stateInit int = iota
-	statePosArg
-	stateOptArg
-	stateNoArgsLeft
-)
 
 func (argSet *ArgSet) ParseFrom(args []string) error {
 	curState := stateInit
