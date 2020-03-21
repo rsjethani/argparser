@@ -13,6 +13,7 @@ const (
 )
 
 var validTags = map[string]*regexp.Regexp{
+	// "name":  regexp.MustCompile(fmt.Sprintf(`^(name)%s([[:alnum:]-]+)$`, tagKeyValueSep)),
 	"name":  regexp.MustCompile(fmt.Sprintf(`^name%s([[:alnum:]-]+)$`, tagKeyValueSep)),
 	"pos":   regexp.MustCompile(fmt.Sprintf(`^pos%s(yes)$`, tagKeyValueSep)),
 	"help":  regexp.MustCompile(fmt.Sprintf(`^help%s([^%s]+)$`, tagKeyValueSep, tagSep)),

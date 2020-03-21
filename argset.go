@@ -25,6 +25,7 @@ type ArgSet struct {
 	OptArgPrefix string
 	posArgs      []posArgWithName
 	optArgs      map[string]*Argument
+	// "optprefix": "--",
 	// largestName int
 	// mutex
 	// choices

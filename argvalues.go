@@ -10,6 +10,7 @@ type Value interface {
 	// Get() interface{}
 	String() string
 	// IsSwitch() bool
+	// Addr() interface{}
 }
 
 // NewValue checks v's type and returns a compatible type which also
