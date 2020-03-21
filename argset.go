@@ -11,8 +11,8 @@ const (
 	statePosArg
 	stateOptArg
 	stateNoArgsLeft
-	optArgPrefix string = "--"
-	packageTag   string = "argparser"
+	defaultOptArgPrefix string = "--"
+	packageTag          string = "argparser"
 )
 
 type posArgWithName struct {
@@ -21,18 +21,22 @@ type posArgWithName struct {
 }
 
 type ArgSet struct {
-	Description string
-	posArgs     []posArgWithName
-	optArgs     map[string]*Argument
+	Description  string
+	OptArgPrefix string
+	posArgs      []posArgWithName
+	optArgs      map[string]*Argument
 	// largestName int
 	// mutex
 	// choices
-	//short option
+	//short option and short prefix
+	// only modify source vars if no errors ie make it atomic
+	// make usage tabular: name,type/format,default,help
 }
 
 func DefaultArgSet() *ArgSet {
 	return &ArgSet{
-		optArgs: make(map[string]*Argument),
+		OptArgPrefix: defaultOptArgPrefix,
+		optArgs:      make(map[string]*Argument),
 	}
 }
 
@@ -101,7 +105,7 @@ func (argSet *ArgSet) AddArgument(name string, arg *Argument) {
 		argSet.posArgs = append(argSet.posArgs, posArgWithName{name: name, arg: arg})
 		return
 	}
-	argSet.optArgs[optArgPrefix+name] = arg
+	argSet.optArgs[argSet.OptArgPrefix+name] = arg
 }
 
 func (argSet *ArgSet) Usage() string {
@@ -149,8 +153,8 @@ func (argSet *ArgSet) ParseFrom(args []string) error {
 			}
 			curArg = arg
 
-			// if curArg starts with '-' then process it as an optional arg
-			if strings.HasPrefix(curArg, "-") {
+			// if curArg starts with the configured prefix then process it as an optional arg
+			if strings.HasPrefix(curArg, argSet.OptArgPrefix) {
 				if _, found := argSet.optArgs[curArg]; found {
 					if visited[curArg] { // if curArg is defined but already processed then return error
 						return fmt.Errorf("option '%s' already given", curArg)
