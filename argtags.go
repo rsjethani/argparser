@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	tagSep         string = "|"
+	tagSep         rune   = ','
 	tagKeyValueSep string = "="
 )
 
@@ -16,15 +16,39 @@ var validTags = map[string]*regexp.Regexp{
 	// "name":  regexp.MustCompile(fmt.Sprintf(`^(name)%s([[:alnum:]-]+)$`, tagKeyValueSep)),
 	"name":  regexp.MustCompile(fmt.Sprintf(`^name%s([[:alnum:]-]+)$`, tagKeyValueSep)),
 	"pos":   regexp.MustCompile(fmt.Sprintf(`^pos%s(yes)$`, tagKeyValueSep)),
-	"help":  regexp.MustCompile(fmt.Sprintf(`^help%s([^%s]+)$`, tagKeyValueSep, tagSep)),
+	"help":  regexp.MustCompile(fmt.Sprintf(`^help%s(.+)$`, tagKeyValueSep)),
 	"nargs": regexp.MustCompile(fmt.Sprintf(`^nargs%s(-?[[:digit:]]+)$`, tagKeyValueSep)),
 	// "mutex":      nil,
 	// "short":      nil,
 }
 
+func splitKV(src string, sep rune) []string {
+	backSlash := '\\'
+	parts := make([]string, 0)
+	b := &strings.Builder{}
+	var prevRune rune
+	for _, curRune := range src {
+		// if rune is a backSlash simply skip it
+		if curRune != backSlash {
+			// rune is a sep but it is not escaped by backSlash
+			if curRune == sep && prevRune != backSlash {
+				parts = append(parts, b.String())
+				b.Reset()
+			} else { // rune is either not a sep or if it is a sep then it is escaped by backskash
+				b.WriteRune(curRune)
+			}
+		}
+		prevRune = curRune
+	}
+	if b.Len() != 0 {
+		parts = append(parts, b.String())
+	}
+	return parts
+}
+
 func parseTags(structTags string) (map[string]string, error) {
 	tagValues := make(map[string]string)
-	tags := strings.Split(structTags, tagSep)
+	tags := splitKV(structTags, tagSep)
 	for _, tag := range tags {
 		if tag == "" {
 			continue
