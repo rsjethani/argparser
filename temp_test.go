@@ -36,12 +36,12 @@ func (p *point) IsSwitch() bool { return false }
 
 func TestTraditionalApproach(t *testing.T) {
 	config := struct {
-		Salute   string  `argparser:"help=Sal\\,utationfortheemployee,name=salute"`
-		Salary   float64 `argparser:"help=Emp\\,loyee salary,pos=yes,name=salary"`
-		FullName string  `argparser:"pos=yes,name=full-name,help=Full name of the employee,pos=yes"`
+		Salute   string  `argparser:"help=Sal\\,utationfortheemployee"`
+		Salary   float64 `argparser:"help=Emp\\,loyee salary,type=pos"`
+		FullName string  `argparser:",help=Full name of the employee,type=pos"`
 		EmpID    []int   `argparser:"name=emp-id,help=Employee ID for new employee,nargs=3"`
 		Loc      point   `argparser:"name=point,help=coordinates"`
-		IsIntern bool    `argparser:"name=is-intern,help=Is the new employee an intern,nargs=0"`
+		IsIntern bool    `argparser:"name=is-intern,help=Is the new employee an intern,type=switch"`
 		// IsIntern bool    `argparser:"name=is-intern|help=Is the new employee an intern|nargs=99999999999999999999"`
 	}{
 		EmpID:  []int{-1},

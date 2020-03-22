@@ -15,7 +15,7 @@ const (
 var validTags = map[string]*regexp.Regexp{
 	// "name":  regexp.MustCompile(fmt.Sprintf(`^(name)%s([[:alnum:]-]+)$`, tagKeyValueSep)),
 	"name":  regexp.MustCompile(fmt.Sprintf(`^name%s([[:alnum:]-]+)$`, tagKeyValueSep)),
-	"pos":   regexp.MustCompile(fmt.Sprintf(`^pos%s(yes)$`, tagKeyValueSep)),
+	"type":  regexp.MustCompile(fmt.Sprintf(`^type%s(pos|opt|switch)$`, tagKeyValueSep)),
 	"help":  regexp.MustCompile(fmt.Sprintf(`^help%s(.+)$`, tagKeyValueSep)),
 	"nargs": regexp.MustCompile(fmt.Sprintf(`^nargs%s(-?[[:digit:]]+)$`, tagKeyValueSep)),
 	// "mutex":      nil,
@@ -65,31 +65,45 @@ func parseTags(structTags string) (map[string]string, error) {
 			return nil, fmt.Errorf("unknown tag and/or invalid value: %s", tag)
 		}
 	}
-	// 'name' tag must be there
-	if tagValues["name"] == "" {
-		return nil, fmt.Errorf("name tag is mandatory")
-	}
+
 	return tagValues, nil
 }
 
 func newArgFromTags(value Value, tags map[string]string) (*Argument, error) {
 	var newARg *Argument
-	if tags["pos"] == "yes" {
+
+	switch tags["type"] {
+	case "pos":
+		if tags["nargs"] == "0" {
+			return nil, fmt.Errorf("nargs cannot be 0 for type=pos")
+		}
+		if tags["nargs"] == "" {
+			tags["nargs"] = "1"
+		}
 		newARg = NewPosArg(value, tags["help"])
-	} else {
+	case "switch":
+		if tags["nargs"] == "" {
+			tags["nargs"] = "0"
+		} else if tags["nargs"] != "0" {
+			return nil, fmt.Errorf("nargs can only be 0 for type=switch")
+		}
+		fallthrough
+	case "opt", "":
+		if tags["nargs"] == "" {
+			tags["nargs"] = "1"
+		}
 		newARg = NewOptArg(value, tags["help"])
 	}
 
-	if tags["nargs"] != "" {
-		nargs, err := strconv.ParseInt(tags["nargs"], 0, strconv.IntSize)
-		if err != nil {
-			return nil, formatParseError(tags["nargs"], fmt.Sprintf("%T", int(1)), err)
-		}
-
-		err = newARg.SetNArgs(int(nargs))
-		if err != nil {
-			return nil, err
-		}
+	nargs, err := strconv.ParseInt(tags["nargs"], 0, strconv.IntSize)
+	if err != nil {
+		return nil, formatParseError(tags["nargs"], fmt.Sprintf("%T", int(1)), err)
 	}
+
+	err = newARg.SetNArgs(int(nargs))
+	if err != nil {
+		return nil, err
+	}
+
 	return newARg, nil
 }

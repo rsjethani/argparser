@@ -72,6 +72,10 @@ func NewArgSet(src interface{}) (*ArgSet, error) {
 		if err != nil {
 			return nil, fmt.Errorf("Error while creating argument from field '%s': %s", fieldType.Name, err)
 		}
+		// if "name" not specified then simlpy use field's name in lower case
+		if tags["name"] == "" {
+			tags["name"] = strings.ToLower(fieldType.Name)
+		}
 
 		argVal, err := NewValue(fieldVal.Addr().Interface())
 		if err != nil {
