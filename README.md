@@ -11,13 +11,13 @@ type <struct name> struct {
 ```
 **PS:** The fields must be public otherwise the `reflect` package will fail to parse the struct.
 
-## Valid Tag keys and Values
+## Valid Tag Keys and Values
 
 | Key | Mandatory | Value Type (Go) | Possible Values | Default | Description |
 | :---: | :---: | --- | :---: | :---: | :--- |
-| `pos` | no | string | exact string `yes` | N/A | create a positional argument if given otherwise create an optional argument |
-| `name` | yes | string | a valid string containing alphanumeric charaters and/or '-' | N/A |the name to identify the argument with |
-| `nargs` | no | int | a valid int | 1 | number of values required by the argument, if set to 0 then the argument will be treated as an optional `switch` argument |
+| `type` | no | string | `pos`/`opt`/`switch` | `opt` | create a positional argument if given otherwise create an optional argument |
+| `name` | no | string | a valid string containing alphanumeric charaters and/or '-' | struct field's name in lower case | the name to identify the argument with |
+| `nargs` | no | int | a valid int | `1` if `type=pos\|opt`, `0` if `type=switch` | number of values required by the argument |
 | `help` | no | string | any valid string, escape `,` as `\\,`  | "" | help message for the user |
 
 ## Example
