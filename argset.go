@@ -42,6 +42,9 @@ func DefaultArgSet() *ArgSet {
 }
 
 func NewArgSet(src interface{}) (*ArgSet, error) {
+	if src == nil {
+		return nil, fmt.Errorf("src cannot be nil")
+	}
 	// get Type data of src, verify that it is of pointer type
 	srcTyp := reflect.TypeOf(src)
 	if srcTyp.Kind() != reflect.Ptr {
@@ -77,6 +80,9 @@ func NewArgSet(src interface{}) (*ArgSet, error) {
 			tags["name"] = strings.ToLower(fieldType.Name)
 		}
 
+		if !fieldVal.Addr().CanInterface() {
+			return nil, fmt.Errorf("Error while creating argument from field '%s': %s", fieldType.Name, "unexported struct field")
+		}
 		argVal, err := NewValue(fieldVal.Addr().Interface())
 		if err != nil {
 			return nil, fmt.Errorf("Error while creating argument from field '%s': %s", fieldType.Name, err)
