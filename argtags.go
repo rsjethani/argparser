@@ -28,18 +28,22 @@ func splitKV(src string, sep rune) []string {
 	b := &strings.Builder{}
 	var prevRune rune
 	for _, curRune := range src {
-		// if rune is a backSlash simply skip it
-		if curRune != backSlash {
-			// rune is a sep but it is not escaped by backSlash
-			if curRune == sep && prevRune != backSlash {
+		switch {
+		// rune is a backSlash simply skip it
+		case curRune == backSlash:
+		// rune is a sep but it is not escaped by backSlash
+		case curRune == sep && prevRune != backSlash:
+			if b.Len() != 0 {
 				parts = append(parts, b.String())
 				b.Reset()
-			} else { // rune is either not a sep or if it is a sep then it is escaped by backskash
-				b.WriteRune(curRune)
 			}
+		// rune is either not a sep/backslash or if it is a sep then it is escaped by backskash
+		default:
+			b.WriteRune(curRune)
 		}
 		prevRune = curRune
 	}
+	// append any remaining runes between last sep and end of src
 	if b.Len() != 0 {
 		parts = append(parts, b.String())
 	}
