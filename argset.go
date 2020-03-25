@@ -93,18 +93,6 @@ func NewArgSet(src interface{}) (*ArgSet, error) {
 	return newArgSet, nil
 }
 
-func (argSet *ArgSet) Arg(name string) *Argument {
-	if arg, ok := argSet.optArgs[name]; ok {
-		return arg
-	}
-	for _, arg := range argSet.posArgs {
-		if arg.name == name {
-			return arg.arg
-		}
-	}
-	return nil
-}
-
 func (argSet *ArgSet) AddArgument(name string, arg *Argument) {
 	if arg == nil {
 		return
