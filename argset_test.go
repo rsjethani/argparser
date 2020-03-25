@@ -1,4 +1,4 @@
-package argparser_test
+package argparser
 
 import "testing"
 

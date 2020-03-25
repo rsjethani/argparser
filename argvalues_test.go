@@ -1,4 +1,4 @@
-package argparser_test
+package argparser
 
 import (
 	"fmt"
@@ -6,8 +6,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
-
-	"github.com/rsjethani/argparser"
+	"time"
 )
 
 const (
@@ -55,21 +54,21 @@ func TestSupportedTypeValueCreation(t *testing.T) {
 		new([]int),
 		new(bool),
 		new([]bool),
-		// new(uint),
-		// new([]uint),
-		// new(int64),
-		// new([]int64),
+		new(uint),
+		new([]uint),
+		new(int64),
+		new([]int64),
 		new(string),
 		new([]string),
-		// new(uint64),
-		// new([]uint64),
+		new(uint64),
+		new([]uint64),
 		new(float64),
 		new([]float64),
-		// new(time.Duration),
-		// new([]time.Duration),
+		new(time.Duration),
+		new([]time.Duration),
 	}
 	for _, val := range supported {
-		_, err := argparser.NewValue(val)
+		_, err := NewValue(val)
 		if err != nil {
 			t.Errorf("Expected: NewValue(%T) should succeed, Got: %s", val, err)
 		}
@@ -79,7 +78,7 @@ func TestSupportedTypeValueCreation(t *testing.T) {
 func TestUnsupportedTypeValueCreation(t *testing.T) {
 	type unsupported struct{}
 	var x unsupported
-	val, err := argparser.NewValue(&x)
+	val, err := NewValue(&x)
 	if err == nil {
 		t.Errorf("Expected: unsupported type error , Got: value of %T type", val)
 	}
@@ -87,7 +86,7 @@ func TestUnsupportedTypeValueCreation(t *testing.T) {
 
 func TestStringType(t *testing.T) {
 	var testVar string
-	arg := argparser.NewString(&testVar)
+	arg := NewString(&testVar)
 
 	data := []struct {
 		input    string
@@ -113,7 +112,7 @@ func TestStringType(t *testing.T) {
 
 func TestBoolType(t *testing.T) {
 	var testVar bool
-	arg := argparser.NewBool(&testVar)
+	arg := NewBool(&testVar)
 
 	// Test Set() with no arguments
 	arg.Set()
@@ -145,7 +144,7 @@ func TestBoolType(t *testing.T) {
 
 func TestStringListType(t *testing.T) {
 	var testVar []string
-	arg := argparser.NewStringList(&testVar)
+	arg := NewStringList(&testVar)
 	data := struct {
 		input    []string
 		expected []string
@@ -173,7 +172,7 @@ func TestStringListType(t *testing.T) {
 
 func TestBoolListType(t *testing.T) {
 	var testVar []bool
-	arg := argparser.NewBoolList(&testVar)
+	arg := NewBoolList(&testVar)
 	data := struct {
 		input    []string
 		expected []bool
@@ -208,7 +207,7 @@ func TestBoolListType(t *testing.T) {
 
 func TestIntType(t *testing.T) {
 	var testVar int
-	arg := argparser.NewInt(&testVar)
+	arg := NewInt(&testVar)
 
 	data := []struct {
 		input    string
@@ -244,7 +243,7 @@ func TestIntType(t *testing.T) {
 
 func TestIntListType(t *testing.T) {
 	var testVar []int
-	arg := argparser.NewIntList(&testVar)
+	arg := NewIntList(&testVar)
 	data := struct {
 		input    []string
 		expected []int
@@ -278,7 +277,7 @@ func TestIntListType(t *testing.T) {
 
 func TestFloat64Type(t *testing.T) {
 	var testVar float64
-	arg := argparser.NewFloat64(&testVar)
+	arg := NewFloat64(&testVar)
 
 	data := []struct {
 		input    string
@@ -315,7 +314,7 @@ func TestFloat64Type(t *testing.T) {
 
 func TestFloat64ListType(t *testing.T) {
 	var testVar []float64
-	arg := argparser.NewFloat64List(&testVar)
+	arg := NewFloat64List(&testVar)
 	data := struct {
 		input    []string
 		expected []float64
