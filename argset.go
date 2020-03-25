@@ -106,6 +106,9 @@ func (argSet *ArgSet) Arg(name string) *Argument {
 }
 
 func (argSet *ArgSet) AddArgument(name string, arg *Argument) {
+	if arg == nil {
+		return
+	}
 	if arg.IsPositional() {
 		argSet.posArgs = append(argSet.posArgs, posArgWithName{name: name, arg: arg})
 		return
