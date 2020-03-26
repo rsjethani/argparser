@@ -9,8 +9,6 @@ type Value interface {
 	Set(...string) error
 	// Get() interface{}
 	String() string
-	// IsSwitch() bool
-	// Addr() interface{}
 }
 
 // NewValue checks v's type and returns a compatible type which also
@@ -67,8 +65,6 @@ func (b *Bool) Set(values ...string) error {
 
 func (b *Bool) String() string { return fmt.Sprint(*b) }
 
-func (b *Bool) IsSwitch() bool { return true }
-
 // Bool type represents a bool value and also implements ArgValue interface
 type BoolList []bool
 
@@ -92,8 +88,6 @@ func (bl *BoolList) Set(values ...string) error {
 // func (bl *BoolList) Get() interface{} { return (*[]bool)(bl) }
 
 func (bl *BoolList) String() string { return fmt.Sprint(*bl) }
-
-func (bl *BoolList) IsSwitch() bool { return false }
 
 // Int type represents an int value
 type Int int
@@ -120,8 +114,6 @@ func (i *Int) Set(values ...string) error {
 
 func (i *Int) String() string { return strconv.Itoa(int(*i)) }
 
-func (i *Int) IsSwitch() bool { return false }
-
 // IntList type representing a list of integer values
 type IntList []int
 
@@ -145,8 +137,6 @@ func (il *IntList) Set(values ...string) error {
 
 func (il *IntList) String() string { return fmt.Sprint(*il) }
 
-func (il *IntList) IsSwitch() bool { return false }
-
 // String type represents a string value and implements ArgValue interface
 type String string
 
@@ -166,8 +156,6 @@ func (s *String) Set(values ...string) error {
 
 func (s *String) String() string { return string(*s) }
 
-func (s *String) IsSwitch() bool { return false }
-
 // StringList type represents a list string value and implements ArgValue interface
 type StringList []string
 
@@ -186,8 +174,6 @@ func (sl *StringList) Set(values ...string) error {
 // func (sl *StringList) Get() interface{} { return (*[]string)(sl) }
 
 func (sl *StringList) String() string { return fmt.Sprint(*sl) }
-
-func (sl *StringList) IsSwitch() bool { return false }
 
 // Float64 represents a float64 value and also implements ArgValue interface
 type Float64 float64
@@ -212,8 +198,6 @@ func (f *Float64) Set(values ...string) error {
 
 func (f *Float64) String() string { return strconv.FormatFloat(float64(*f), 'g', -1, 64) }
 
-func (f *Float64) IsSwitch() bool { return false }
-
 // Float64List type representing a list of float64 values and implements ArgValue interface
 type Float64List []float64
 
@@ -237,5 +221,3 @@ func (fl *Float64List) Set(values ...string) error {
 // func (fl *Float64List) Get() interface{} { return (*[]float64)(fl) }
 
 func (fl *Float64List) String() string { return fmt.Sprint(*fl) }
-
-func (fl *Float64List) IsSwitch() bool { return false }

@@ -14,9 +14,19 @@ const (
 	minInt  int  = -maxInt - 1
 )
 
+type customValue struct{}
+
+func (c *customValue) Set(values ...string) error {
+	return nil
+}
+func (c *customValue) String() string {
+	return ""
+}
+
 func TestSupportedTypeValueCreation(t *testing.T) {
-	// Test value creation for types implementing ArgValue interface
+	// Test value creation for types implementing Value interface
 	supported := []interface{}{
+		new(customValue),
 		new(int),
 		new([]int),
 		new(bool),
