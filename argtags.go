@@ -54,9 +54,6 @@ func parseTags(structTags string) (map[string]string, error) {
 	tagValues := make(map[string]string)
 	tags := splitKV(structTags, tagSep)
 	for _, tag := range tags {
-		if tag == "" {
-			continue
-		}
 		unknownTag := true
 		for name, regex := range validTags {
 			res := regex.FindStringSubmatch(tag)
