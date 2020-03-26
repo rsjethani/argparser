@@ -73,14 +73,16 @@ func parseTags(structTags string) (map[string]string, error) {
 	return tagValues, nil
 }
 
-func newArgFromTags(value Value, tags map[string]string) (*Argument, error) {
-	var newARg *Argument
+func newArgFromTags(value Value, fieldName string, structTags string) (*Argument, string, error) {
+	tags, err := parseTags(structTags)
+	if err != nil {
+		return nil, "", err
+	}
 
+	var newARg *Argument
+	// calculate nargs
 	switch tags["type"] {
 	case "pos":
-		if tags["nargs"] == "0" {
-			return nil, fmt.Errorf("nargs cannot be 0 for type=pos")
-		}
 		if tags["nargs"] == "" {
 			tags["nargs"] = "1"
 		}
@@ -89,25 +91,29 @@ func newArgFromTags(value Value, tags map[string]string) (*Argument, error) {
 		if tags["nargs"] == "" {
 			tags["nargs"] = "0"
 		} else if tags["nargs"] != "0" {
-			return nil, fmt.Errorf("nargs can only be 0 for type=switch")
+			return nil, "", fmt.Errorf("nargs can only be 0 for type=switch")
 		}
-		fallthrough
+		newARg = NewOptArg(value, tags["help"])
 	case "opt", "":
 		if tags["nargs"] == "" {
 			tags["nargs"] = "1"
 		}
 		newARg = NewOptArg(value, tags["help"])
 	}
-
 	nargs, err := strconv.ParseInt(tags["nargs"], 0, strconv.IntSize)
 	if err != nil {
-		return nil, formatParseError(tags["nargs"], fmt.Sprintf("%T", int(1)), err)
+		return nil, "", formatParseError(tags["nargs"], fmt.Sprintf("%T", int(1)), err)
 	}
 
 	err = newARg.SetNArgs(int(nargs))
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
-	return newARg, nil
+	// calculate name: if "name" not specified then simlpy use field's name in lower case
+	if tags["name"] == "" {
+		tags["name"] = strings.ToLower(fieldName)
+	}
+
+	return newARg, tags["name"], nil
 }

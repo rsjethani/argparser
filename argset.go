@@ -71,15 +71,6 @@ func NewArgSet(src interface{}) (*ArgSet, error) {
 			continue
 		}
 
-		tags, err := parseTags(structTags)
-		if err != nil {
-			return nil, fmt.Errorf("Error while creating argument from field '%s': %s", fieldType.Name, err)
-		}
-		// if "name" not specified then simlpy use field's name in lower case
-		if tags["name"] == "" {
-			tags["name"] = strings.ToLower(fieldType.Name)
-		}
-
 		if !fieldVal.Addr().CanInterface() {
 			return nil, fmt.Errorf("Error while creating argument from field '%s': %s", fieldType.Name, "unexported struct field")
 		}
@@ -88,12 +79,12 @@ func NewArgSet(src interface{}) (*ArgSet, error) {
 			return nil, fmt.Errorf("Error while creating argument from field '%s': %s", fieldType.Name, err)
 		}
 
-		arg, err := newArgFromTags(argVal, tags)
+		arg, name, err := newArgFromTags(argVal, fieldType.Name, structTags)
 		if err != nil {
 			return nil, fmt.Errorf("Error while creating argument from field '%s': %s", fieldType.Name, err)
 		}
 
-		newArgSet.AddArgument(tags["name"], arg)
+		newArgSet.AddArgument(name, arg)
 	}
 
 	return newArgSet, nil

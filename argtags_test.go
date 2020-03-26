@@ -80,3 +80,32 @@ func TestParseTagsValidKeyValues(t *testing.T) {
 		}
 	}
 }
+
+// func TestNewArgFromTags(t *testing.T) {
+// 	testTags := make(map[string]string)
+
+// 	testTags["type"] = "pos"
+// 	testTags["nargs"] = "0"
+// 	if arg, err := newArgFromTags(nil, testTags); arg != nil || err == nil {
+// 		t.Errorf("testing: newArgFromTags(%#v); expected: nil Argument, non-nil error, got: %v, %v ", testTags, arg, err)
+// 	}
+
+// 	testTags["type"] = "switch"
+// 	testTags["nargs"] = "10"
+// 	if arg, err := newArgFromTags(nil, testTags); arg != nil || err == nil {
+// 		t.Errorf("testing: newArgFromTags(%#v); expected: nil Argument, non-nil error, got: %v, %v ", testTags, arg, err)
+// 	}
+
+// }
+
+// // Test default argument name should be lower case of field name
+// args2 := struct {
+// 	Field4 int `argparser:"type=opt"`
+// }{}
+// argset, err = NewArgSet(&args2)
+// if err != nil {
+// 	t.Errorf("testing: NewArgSet(%#v); expected: (non-nil *ArgSet, nil); got: (%v, %#v)", args2, argset, err)
+// }
+// if argset.optArgs["--field4"] == nil {
+// 	t.Errorf(`testing: testing: NewArgSet(%#v); expected: ArgSet.optArgs["--field4"]!=nil; got: nil`, &args2)
+// }

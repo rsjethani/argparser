@@ -39,27 +39,23 @@ func TestAddArgument(t *testing.T) {
 
 func TestNewArgSetInvalidInputs(t *testing.T) {
 	data := []interface{}{
-		// Test invalid case of nil input
+		// Test nil as input
 		nil,
-		// Test invalid case of non-pointer input
+		// Test non-pointer as input
 		*new(bool),
-		// Test invalid case of pointer to a non-struct input
+		// Test pointer to a non-struct as input
 		new(bool),
-		// Test invalid case of unexported tagged field as input
+		// Test unexported tagged field as input
 		&struct {
 			field1 int `argparser:""`
 		}{},
-		// Test invalid case of unsupported field type as input
+		// Test unsupported field type as input
 		&struct {
 			Field1 int8 `argparser:""`
 		}{},
-		// Test invalid case of invalid tag/value as input
+		// Test invalid tag/value as input
 		&struct {
 			Field1 int `argparser:"type=xxx"`
-		}{},
-		// Test invalid case of invalid tag/value as input
-		&struct {
-			Field1 int `argparser:"type=pos,nargs=0"`
 		}{},
 	}
 	for _, input := range data {
@@ -70,26 +66,28 @@ func TestNewArgSetInvalidInputs(t *testing.T) {
 }
 
 func TestNewArgSetValidInputs(t *testing.T) {
+	// Test skipping of untagged fields
 	args1 := struct {
 		Field1 int // no 'argparser' tag hence should be skipped
 	}{}
 	argset, err := NewArgSet(&args1)
 	if err != nil {
-		t.Errorf("testing: NewArgSet(%#v); expected: (non-nil *ArgSet, nil); got: (%v, %#v)", args1, argset, err)
+		t.Errorf("testing: NewArgSet(%#v); expected: non-nil *ArgSet and nil error; got: %v", args1, err)
 	}
-	if len(argset.posArgs) != 0 || argset.optArgs["--field1"] != nil {
-		t.Errorf("testing: NewArgSet(%#v); expected: no optional/positional argument should be added; got: %#v", &args1, argset)
+	if len(argset.posArgs) != 0 || len(argset.optArgs) != 0 {
+		t.Errorf("testing: NewArgSet(%#v); expected: no optional/positional arguments in argset; got: %#v", &args1, argset)
 	}
 
-	// Test default argument name should be lower case of field name
+	// Test parsing of tagged fields and no error with valid key/values
 	args2 := struct {
-		Field4 int `argparser:"type=opt"`
+		Field1 int `argparser:""`         // optional argument
+		Field2 int `argparser:"type=pos"` // positional argument
 	}{}
 	argset, err = NewArgSet(&args2)
 	if err != nil {
-		t.Errorf("testing: NewArgSet(%#v); expected: (non-nil *ArgSet, nil); got: (%v, %#v)", args2, argset, err)
+		t.Errorf("testing: NewArgSet(%#v); expected: non-nil *ArgSet and nil error; got: %v", args2, err)
 	}
-	if argset.optArgs["--field4"] == nil {
-		t.Errorf(`testing: testing: NewArgSet(%#v); expected: ArgSet.optArgs["--field4"]!=nil; got: nil`, &args2)
+	if len(argset.posArgs) == 0 || len(argset.optArgs) == 0 {
+		t.Errorf("testing: NewArgSet(%#v); expected: 1 optional and 1 positional arguments in argset; got: %#v", &args2, argset)
 	}
 }
