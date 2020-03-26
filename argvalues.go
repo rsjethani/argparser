@@ -7,7 +7,7 @@ import (
 
 type Value interface {
 	Set(...string) error
-	// Get() interface{}
+	Get() interface{}
 	String() string
 }
 
@@ -61,7 +61,7 @@ func (b *Bool) Set(values ...string) error {
 	return nil
 }
 
-// func (b *Bool) Get() interface{} { return bool(*b) }
+func (b *Bool) Get() interface{} { return bool(*b) }
 
 func (b *Bool) String() string { return fmt.Sprint(*b) }
 
@@ -85,7 +85,7 @@ func (bl *BoolList) Set(values ...string) error {
 	return nil
 }
 
-// func (bl *BoolList) Get() interface{} { return (*[]bool)(bl) }
+func (bl *BoolList) Get() interface{} { return []bool(*bl) }
 
 func (bl *BoolList) String() string { return fmt.Sprint(*bl) }
 
@@ -110,7 +110,7 @@ func (i *Int) Set(values ...string) error {
 	return nil
 }
 
-// func (i *Int) Get() interface{} { return int(*i) }
+func (i *Int) Get() interface{} { return int(*i) }
 
 func (i *Int) String() string { return strconv.Itoa(int(*i)) }
 
@@ -133,7 +133,7 @@ func (il *IntList) Set(values ...string) error {
 	return nil
 }
 
-// func (il *IntList) Get() interface{} { return (*[]int)(il) }
+func (il *IntList) Get() interface{} { return []int(*il) }
 
 func (il *IntList) String() string { return fmt.Sprint(*il) }
 
@@ -152,9 +152,9 @@ func (s *String) Set(values ...string) error {
 	return nil
 }
 
-// func (s *String) Get() interface{} { return string(*s) }
+func (s *String) Get() interface{} { return string(*s) }
 
-func (s *String) String() string { return string(*s) }
+func (s *String) String() string { return fmt.Sprint(*s) }
 
 // StringList type represents a list string value and implements ArgValue interface
 type StringList []string
@@ -171,7 +171,7 @@ func (sl *StringList) Set(values ...string) error {
 	return nil
 }
 
-// func (sl *StringList) Get() interface{} { return (*[]string)(sl) }
+func (sl *StringList) Get() interface{} { return []string(*sl) }
 
 func (sl *StringList) String() string { return fmt.Sprint(*sl) }
 
@@ -194,7 +194,7 @@ func (f *Float64) Set(values ...string) error {
 	return nil
 }
 
-// func (f *Float64) Get() interface{} { return float64(*f) }
+func (f *Float64) Get() interface{} { return float64(*f) }
 
 func (f *Float64) String() string { return strconv.FormatFloat(float64(*f), 'g', -1, 64) }
 
@@ -218,6 +218,6 @@ func (fl *Float64List) Set(values ...string) error {
 	return nil
 }
 
-// func (fl *Float64List) Get() interface{} { return (*[]float64)(fl) }
+func (fl *Float64List) Get() interface{} { return []float64(*fl) }
 
 func (fl *Float64List) String() string { return fmt.Sprint(*fl) }

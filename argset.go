@@ -26,7 +26,7 @@ type ArgSet struct {
 	posArgs      []posArgWithName
 	optArgs      map[string]*Argument
 	// "optprefix": "--",
-	// largestName int
+	maxNameWidth int
 	// mutex
 	// choices
 	//short option and short prefix
@@ -94,6 +94,9 @@ func (argSet *ArgSet) AddArgument(name string, arg *Argument) {
 	if arg == nil {
 		return
 	}
+	if len(name) > argSet.maxNameWidth {
+		argSet.maxNameWidth = len(name) + 5
+	}
 	if arg.IsPositional() {
 		argSet.posArgs = append(argSet.posArgs, posArgWithName{name: name, arg: arg})
 		return
@@ -104,21 +107,26 @@ func (argSet *ArgSet) AddArgument(name string, arg *Argument) {
 func (argSet *ArgSet) Usage() string {
 	// TODO: show list of pos/opt args in sorted order
 	builder := strings.Builder{}
-	builder.WriteString("[] [] [] ...")
 	builder.WriteString("\n\n")
 	builder.WriteString(argSet.Description)
 	builder.WriteString("\n\n")
 	builder.WriteString("Positional Arguments:")
 	for _, p := range argSet.posArgs {
 		builder.WriteString("\n")
-		//fmt.Sprintf("\n%-[2]*[1]s",p.Name,argSet.largestName)
-		builder.WriteString(fmt.Sprintf("%-15s%s", p.name, p.arg.Help))
+		builder.WriteString(fmt.Sprintf("  %s  %T\n", p.name, p.arg.Value.Get()))
+		builder.WriteString(fmt.Sprintf("\t%s", p.arg.Help))
 	}
 	builder.WriteString("\n\n")
 	builder.WriteString("Optional Arguments:")
-	for name := range argSet.optArgs {
+	for name, arg := range argSet.optArgs {
 		builder.WriteString("\n")
-		builder.WriteString(fmt.Sprintf("%-15s%s. Default: %s", name, argSet.optArgs[name].Help, argSet.optArgs[name].Value))
+		if arg.isSwitch() {
+			builder.WriteString(fmt.Sprintf("  %s\n", name))
+		} else {
+			builder.WriteString(fmt.Sprintf("  %s  %T\n", name, arg.Value.Get()))
+		}
+		builder.WriteString(fmt.Sprintf("\t%s", arg.Help))
+		// builder.WriteString(fmt.Sprintf("%-[1]*[2]s%[3]s. Default: %v", argSet.maxNameWidth, name, argSet.optArgs[name].Help, argSet.optArgs[name].Value.Get()))
 	}
 	return builder.String()
 }

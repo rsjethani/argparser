@@ -15,7 +15,7 @@ func NewArgParser(argSet *ArgSet) *ArgParser {
 }
 
 func (parser *ArgParser) Usage() {
-	fmt.Printf("Usage: %s %s", os.Args[0], parser.mainArgSet.Usage())
+	fmt.Printf("Usage of %s:\n%s", os.Args[0], parser.mainArgSet.Usage())
 }
 
 func (parser *ArgParser) ParseFrom(args []string) error {
