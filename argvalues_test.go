@@ -3,10 +3,7 @@ package argparser
 import (
 	"fmt"
 	"math"
-	"strconv"
-	"strings"
 	"testing"
-	"time"
 )
 
 const (
@@ -17,55 +14,25 @@ const (
 	minInt  int  = -maxInt - 1
 )
 
-// type point implements Value interface
-type point struct {
-	x, y int
-}
-
-func (p *point) Set(values ...string) error {
-	vals := strings.Split(values[0], ",")
-	v, err := strconv.ParseInt(vals[0], 0, strconv.IntSize)
-	if err != nil {
-		return err
-	}
-	p.x = int(v)
-
-	v, err = strconv.ParseInt(vals[1], 0, strconv.IntSize)
-	p.y = int(v)
-
-	return nil
-}
-
-// func (p *point) Get() interface{} {
-// 	return p
-// }
-
-func (p *point) String() string {
-	return fmt.Sprintf("%d,%d", p.x, p.y)
-}
-
-func (p *point) IsSwitch() bool { return false }
-
 func TestSupportedTypeValueCreation(t *testing.T) {
 	// Test value creation for types implementing ArgValue interface
 	supported := []interface{}{
-		new(point),
 		new(int),
 		new([]int),
 		new(bool),
 		new([]bool),
-		new(uint),
-		new([]uint),
-		new(int64),
-		new([]int64),
+		// new(uint),
+		// new([]uint),
+		// new(int64),
+		// new([]int64),
 		new(string),
 		new([]string),
-		new(uint64),
-		new([]uint64),
+		// new(uint64),
+		// new([]uint64),
 		new(float64),
 		new([]float64),
-		new(time.Duration),
-		new([]time.Duration),
+		// new(time.Duration),
+		// new([]time.Duration),
 	}
 	for _, val := range supported {
 		_, err := NewValue(val)
