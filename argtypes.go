@@ -38,6 +38,10 @@ func NewSwitchArg(value Value, help string) *Argument {
 	}
 }
 
+func (arg *Argument) isSwitch() bool {
+	return !arg.positional && arg.nArgs == 0
+}
+
 func (arg *Argument) IsPositional() bool {
 	return arg.positional
 }

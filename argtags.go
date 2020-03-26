@@ -79,40 +79,35 @@ func newArgFromTags(value Value, fieldName string, structTags string) (*Argument
 		return nil, "", err
 	}
 
-	var newARg *Argument
-	// calculate nargs
-	switch tags["type"] {
-	case "pos":
-		if tags["nargs"] == "" {
-			tags["nargs"] = "1"
-		}
-		newARg = NewPosArg(value, tags["help"])
-	case "switch":
-		if tags["nargs"] == "" {
-			tags["nargs"] = "0"
-		} else if tags["nargs"] != "0" {
-			return nil, "", fmt.Errorf("nargs can only be 0 for type=switch")
-		}
-		newARg = NewOptArg(value, tags["help"])
-	case "opt", "":
-		if tags["nargs"] == "" {
-			tags["nargs"] = "1"
-		}
-		newARg = NewOptArg(value, tags["help"])
-	}
-	nargs, err := strconv.ParseInt(tags["nargs"], 0, strconv.IntSize)
-	if err != nil {
-		return nil, "", formatParseError(tags["nargs"], fmt.Sprintf("%T", int(1)), err)
-	}
-
-	err = newARg.SetNArgs(int(nargs))
-	if err != nil {
-		return nil, "", err
-	}
-
 	// calculate name: if "name" not specified then simlpy use field's name in lower case
 	if tags["name"] == "" {
 		tags["name"] = strings.ToLower(fieldName)
+	}
+
+	var newARg *Argument
+	switch tags["type"] {
+	case "pos":
+		newARg = NewPosArg(value, tags["help"])
+	case "switch":
+		newARg = NewSwitchArg(value, tags["help"])
+	case "opt", "":
+		newARg = NewOptArg(value, tags["help"])
+	}
+
+	if tags["nargs"] != "" {
+		if newARg.isSwitch() {
+			return nil, "", fmt.Errorf("nargs can only be 0 for type=switch")
+		}
+
+		nargs, err := strconv.ParseInt(tags["nargs"], 0, strconv.IntSize)
+		if err != nil {
+			return nil, "", formatParseError(tags["nargs"], fmt.Sprintf("%T", int(1)), err)
+		}
+
+		err = newARg.SetNArgs(int(nargs))
+		if err != nil {
+			return nil, "", err
+		}
 	}
 
 	return newARg, tags["name"], nil
