@@ -23,6 +23,10 @@ func (c *customValue) String() string {
 	return ""
 }
 
+func (c *customValue) Get() interface{} {
+	return nil
+}
+
 func TestSupportedTypeValueCreation(t *testing.T) {
 	// Test value creation for types implementing Value interface
 	supported := []interface{}{
