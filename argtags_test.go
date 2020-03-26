@@ -81,22 +81,30 @@ func TestParseTagsValidKeyValues(t *testing.T) {
 	}
 }
 
-// func TestNewArgFromTags(t *testing.T) {
-// 	testTags := make(map[string]string)
+func TestNewArgFromTagsInvalidInput(t *testing.T) {
+	testKVs := "nargs=123abc"
+	if arg, _, err := newArgFromTags(nil, "", testKVs); arg != nil || err == nil {
+		t.Errorf("testing: newArgFromTags(%#v); expected: non-nil error since key-value parsing should fail for invalid key/value; got: %#v, %#v ", testKVs, arg, err)
+	}
 
-// 	testTags["type"] = "pos"
-// 	testTags["nargs"] = "0"
-// 	if arg, err := newArgFromTags(nil, testTags); arg != nil || err == nil {
-// 		t.Errorf("testing: newArgFromTags(%#v); expected: nil Argument, non-nil error, got: %v, %v ", testTags, arg, err)
-// 	}
+	testKVs = "type=pos,nargs=0"
+	if arg, _, err := newArgFromTags(nil, "", testKVs); arg != nil || err == nil {
+		t.Errorf("testing: newArgFromTags(%#v); expected: non-nil error since nargs cannot be 0 for type=pos; got: %#v, %#v ", testKVs, arg, err)
+	}
 
-// 	testTags["type"] = "switch"
-// 	testTags["nargs"] = "10"
-// 	if arg, err := newArgFromTags(nil, testTags); arg != nil || err == nil {
-// 		t.Errorf("testing: newArgFromTags(%#v); expected: nil Argument, non-nil error, got: %v, %v ", testTags, arg, err)
-// 	}
+	testKVs = "type=switch,nargs=10"
+	if arg, _, err := newArgFromTags(nil, "", testKVs); arg != nil || err == nil {
+		t.Errorf("testing: newArgFromTags(%#v); expected: non-nil error since nargs can only be 0 for type=switch; got: %#v, %#v ", testKVs, arg, err)
+	}
 
-// }
+	testKVs = "nargs=9999999999999999999999999"
+	if arg, _, err := newArgFromTags(nil, "", testKVs); arg != nil || err == nil {
+		t.Errorf("testing: newArgFromTags(%#v); expected: non-nil error since nargs value overflows int size; got: %#v, %#v ", testKVs, arg, err)
+	}
+}
+
+func TestNewArgFromTagsValidInput(t *testing.T) {
+}
 
 // // Test default argument name should be lower case of field name
 // args2 := struct {
