@@ -33,14 +33,14 @@ type ArgSet struct {
 	// make usage tabular: name,type/format,default,help
 }
 
-func DefaultArgSet() *ArgSet {
+func NewArgSet() *ArgSet {
 	return &ArgSet{
 		OptArgPrefix: defaultOptArgPrefix,
 		optArgs:      make(map[string]*Argument),
 	}
 }
 
-func NewArgSet(src interface{}) (*ArgSet, error) {
+func NewArgSetFrom(src interface{}) (*ArgSet, error) {
 	if src == nil {
 		return nil, fmt.Errorf("src cannot be nil")
 	}
@@ -59,7 +59,7 @@ func NewArgSet(src interface{}) (*ArgSet, error) {
 
 	srcVal := reflect.ValueOf(src).Elem()
 
-	newArgSet := DefaultArgSet()
+	newArgSet := NewArgSet()
 	// iterate over all fields of the struct, parse the value of 'argparser' tag
 	// and create arguments accordingly. Skip any field not tagged with 'argparser'
 	for i := 0; i < srcTyp.NumField(); i++ {

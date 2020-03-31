@@ -5,8 +5,8 @@ import (
 	"testing"
 )
 
-func TestDefaultArgSet(t *testing.T) {
-	argset := DefaultArgSet()
+func TestNewArgSet(t *testing.T) {
+	argset := NewArgSet()
 	if argset.OptArgPrefix != defaultOptArgPrefix {
 		t.Errorf("testing: DefaultArgSet(); expected: argset.OptArgPrefix==%#v; got: argset.OptArgPrefix==%#v", defaultOptArgPrefix, argset.OptArgPrefix)
 	}
@@ -20,7 +20,7 @@ func TestDefaultArgSet(t *testing.T) {
 }
 
 func TestAddArgument(t *testing.T) {
-	argset := DefaultArgSet()
+	argset := NewArgSet()
 
 	argset.AddArgument("dummy", nil)
 	if len(argset.posArgs) != 0 || argset.optArgs["--dummy"] != nil {
@@ -38,7 +38,7 @@ func TestAddArgument(t *testing.T) {
 	}
 }
 
-func TestNewArgSetInvalidInputs(t *testing.T) {
+func TestNewArgSetFromInvalidInputs(t *testing.T) {
 	data := []interface{}{
 		// Test nil as input
 		nil,
@@ -60,18 +60,18 @@ func TestNewArgSetInvalidInputs(t *testing.T) {
 		}{},
 	}
 	for _, input := range data {
-		if argset, err := NewArgSet(input); argset != nil || err == nil {
+		if argset, err := NewArgSetFrom(input); argset != nil || err == nil {
 			t.Errorf("testing: NewArgSet(%#v); expected: (nil, error); got: (%v, %#v)", input, argset, err)
 		}
 	}
 }
 
-func TestNewArgSetValidInputs(t *testing.T) {
+func TestNewArgSetFromValidInputs(t *testing.T) {
 	// Test skipping of untagged fields
 	args1 := struct {
 		Field1 int // no 'argparser' tag hence should be skipped
 	}{}
-	argset, err := NewArgSet(&args1)
+	argset, err := NewArgSetFrom(&args1)
 	if err != nil {
 		t.Errorf("testing: NewArgSet(%#v); expected: non-nil *ArgSet and nil error; got: %v", args1, err)
 	}
@@ -84,7 +84,7 @@ func TestNewArgSetValidInputs(t *testing.T) {
 		Field1 int `argparser:""`         // optional argument
 		Field2 int `argparser:"type=pos"` // positional argument
 	}{}
-	argset, err = NewArgSet(&args2)
+	argset, err = NewArgSetFrom(&args2)
 	if err != nil {
 		t.Errorf("testing: NewArgSet(%#v); expected: non-nil *ArgSet and nil error; got: %v", args2, err)
 	}
@@ -108,7 +108,7 @@ func TestUsage(t *testing.T) {
 		Sw1                    bool    `argparser:"type=switch,help=sw1 help"`
 	}{}
 
-	argSet, err := NewArgSet(&args1)
+	argSet, err := NewArgSetFrom(&args1)
 	if err != nil {
 		t.Error(err)
 	}

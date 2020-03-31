@@ -18,7 +18,7 @@ func main() {
 		Salute: "Mr.",
 	}
 
-	mainSet, err := argparser.NewArgSet(&config)
+	mainSet, err := argparser.NewArgSetFrom(&config)
 	if err != nil {
 		fmt.Println(err)
 		return
