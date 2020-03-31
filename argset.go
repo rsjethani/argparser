@@ -199,6 +199,10 @@ func (argSet *ArgSet) ParseFrom(args []string) error {
 			curState = stateInit
 		case stateOptArg:
 			if argSet.optArgs[curArg].nArgs == 0 {
+				if curArg == "--help" {
+					argSet.usage()
+					return nil
+				}
 				argSet.optArgs[curArg].value.Set()
 				argsIndex++
 			} else if argSet.optArgs[curArg].nArgs < 0 {

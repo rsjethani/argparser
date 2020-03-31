@@ -25,11 +25,10 @@ func main() {
 	}
 	mainSet.Description = "CLI for managing employee database"
 
-	parser := argparser.NewParser(mainSet)
-	parser.Usage()
+	mainSet.ParseFrom([]string{"--help"})
 
 	fmt.Printf("\nBEFORE parsing: %+v\n", config)
-	err = parser.ParseFrom([]string{"3.4", "asd", "--salute", "XXX", "--is-intern", "--emp-id", "88888", "345", "33"})
+	err = mainSet.ParseFrom([]string{"3.4", "asd", "--salute", "XXX", "--is-intern", "--emp-id", "88888", "345", "33"})
 	if err != nil {
 		fmt.Println(err)
 		return
