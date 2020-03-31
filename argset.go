@@ -3,6 +3,7 @@ package argparser
 import (
 	"fmt"
 	"io"
+	"os"
 	"reflect"
 	"strings"
 )
@@ -26,11 +27,21 @@ type ArgSet struct {
 	OptArgPrefix string
 	posArgs      []posArgWithName
 	optArgs      map[string]*Argument
+	usageOut     io.Writer
+
 	// mutex
 	// choices
 	//short option and short prefix
 	// only modify source vars if no errors ie make it atomic
 	// make usage tabular: name,type/format,default,help
+}
+
+func (argSet *ArgSet) SetOutput(w io.Writer) {
+	if w == nil {
+		argSet.usageOut = os.Stderr
+		return
+	}
+	argSet.usageOut = w
 }
 
 func (argSet *ArgSet) addHelp() {
@@ -42,6 +53,7 @@ func NewArgSet() *ArgSet {
 	argSet := &ArgSet{
 		OptArgPrefix: defaultOptArgPrefix,
 		optArgs:      make(map[string]*Argument),
+		usageOut:     os.Stderr,
 	}
 	argSet.addHelp()
 	return argSet
@@ -107,7 +119,9 @@ func (argSet *ArgSet) Add(name string, arg *Argument) {
 	argSet.optArgs[argSet.OptArgPrefix+name] = arg
 }
 
-func (argSet *ArgSet) usage(out io.Writer) {
+func (argSet *ArgSet) usage() {
+	out := argSet.usageOut
+	fmt.Fprintf(out, "Usage of %s:\n", os.Args[0])
 	// TODO: show list of opt args in sorted order
 	fmt.Fprint(out, argSet.Description)
 	fmt.Fprint(out, "\n\nPositional Arguments:")
@@ -125,9 +139,11 @@ func (argSet *ArgSet) usage(out io.Writer) {
 		val := arg.value.Get()
 		fmt.Fprintf(out, "\n  %[1]s  %[2]T%[4]s\n\t%[3]s  (Default: %[2]v)", name, val, arg.help, sw)
 	}
+
+	fmt.Fprintln(out, "")
 }
 
-func (argSet *ArgSet) parseFrom(args []string) error {
+func (argSet *ArgSet) ParseFrom(args []string) error {
 	curState := stateInit
 	var curArg string
 	visited := make(map[string]bool)
@@ -215,4 +231,8 @@ func (argSet *ArgSet) parseFrom(args []string) error {
 			return nil
 		}
 	}
+}
+
+func (argSet *ArgSet) Parse() error {
+	return argSet.ParseFrom(os.Args[1:])
 }

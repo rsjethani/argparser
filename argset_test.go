@@ -1,7 +1,6 @@
 package argparser
 
 import (
-	"os"
 	"testing"
 )
 
@@ -114,5 +113,5 @@ func TestUsage(t *testing.T) {
 	}
 	argSet.Description = "affaadadaddadsdasdasdddddddddddddddddddddddddddasda adsdasddd\nasdddadadadada"
 
-	argSet.usage(os.Stderr)
+	argSet.usage()
 }
