@@ -2,6 +2,7 @@ package argparser
 
 import (
 	"fmt"
+	"io"
 	"reflect"
 	"strings"
 )
@@ -26,7 +27,6 @@ type ArgSet struct {
 	posArgs      []posArgWithName
 	optArgs      map[string]*Argument
 	// "optprefix": "--",
-	maxNameWidth int
 	// mutex
 	// choices
 	//short option and short prefix
@@ -94,9 +94,6 @@ func (argSet *ArgSet) AddArgument(name string, arg *Argument) {
 	if arg == nil {
 		return
 	}
-	if len(name) > argSet.maxNameWidth {
-		argSet.maxNameWidth = len(name) + 5
-	}
 	if arg.IsPositional() {
 		argSet.posArgs = append(argSet.posArgs, posArgWithName{name: name, arg: arg})
 		return
@@ -104,34 +101,24 @@ func (argSet *ArgSet) AddArgument(name string, arg *Argument) {
 	argSet.optArgs[argSet.OptArgPrefix+name] = arg
 }
 
-func (argSet *ArgSet) Usage() string {
-	// TODO: show list of pos/opt args in sorted order
-	builder := strings.Builder{}
-	builder.WriteString("\n\n")
-	builder.WriteString(argSet.Description)
-	builder.WriteString("\n\n")
-	builder.WriteString("Positional Arguments:")
+func (argSet *ArgSet) usage(out io.Writer) {
+	// TODO: show list of opt args in sorted order
+	fmt.Fprint(out, argSet.Description)
+	fmt.Fprint(out, "\n\nPositional Arguments:")
 	for _, p := range argSet.posArgs {
-		builder.WriteString("\n")
-		builder.WriteString(fmt.Sprintf("  %s  %T\n", p.name, p.arg.Value.Get()))
-		builder.WriteString(fmt.Sprintf("\t%s", p.arg.Help))
+		fmt.Fprintf(out, "\n  %s  %T\n\t%s", p.name, p.arg.Value.Get(), p.arg.Help)
 	}
-	builder.WriteString("\n\n")
-	builder.WriteString("Optional Arguments:")
+	fmt.Fprint(out, "\n\nOptional Arguments:")
 	for name, arg := range argSet.optArgs {
-		builder.WriteString("\n")
 		if arg.isSwitch() {
-			builder.WriteString(fmt.Sprintf("  %s\n", name))
+			fmt.Fprintf(out, "\n  %s\n\t%s", name, arg.Help)
 		} else {
-			builder.WriteString(fmt.Sprintf("  %s  %T\n", name, arg.Value.Get()))
+			fmt.Fprintf(out, "\n  %s  %T\n\t%s", name, arg.Value.Get(), arg.Help)
 		}
-		builder.WriteString(fmt.Sprintf("\t%s", arg.Help))
-		// builder.WriteString(fmt.Sprintf("%-[1]*[2]s%[3]s. Default: %v", argSet.maxNameWidth, name, argSet.optArgs[name].Help, argSet.optArgs[name].Value.Get()))
 	}
-	return builder.String()
 }
 
-func (argSet *ArgSet) ParseFrom(args []string) error {
+func (argSet *ArgSet) parseFrom(args []string) error {
 	curState := stateInit
 	var curArg string
 	visited := make(map[string]bool)

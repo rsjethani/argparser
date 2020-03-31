@@ -1,6 +1,7 @@
 package argparser
 
 import (
+	"os"
 	"testing"
 )
 
@@ -92,28 +93,26 @@ func TestNewArgSetValidInputs(t *testing.T) {
 	}
 }
 
-// func TestUsage(t *testing.T) {
-// 	args1 := struct {
-// 		Pos1                   int     `argparser:"type=pos,help=pos1 help"`
-// 		Pos2                   bool    `argparser:"type=pos,help=pos2 help"`
-// 		Posssssssssssssssssss3 string  `argparser:"type=pos,help=pos3 help"`
-// 		Pos4                   float64 `argparser:"type=pos,help=pos4 help"`
-// 		Pos5                   []int   `argparser:"type=pos,help=pos5 help,nargs=2"`
-// 		Opt1                   int     `argparser:"help=opt1 help"`
-// 		Opt2                   bool    `argparser:"help=opt2 help"`
-// 		Optfffffffffffffff3    string  `argparser:"help=opt3 help"`
-// 		Opt4                   float64 `argparser:"help=opt4 help"`
-// 		Opt5                   []int   `argparser:"help=opt5 help,nargs=3"`
-// 		Sw1                    bool    `argparser:"type=switch,help=sw1 help"`
-// 	}{}
+func TestUsage(t *testing.T) {
+	args1 := struct {
+		Pos1                   int     `argparser:"type=pos,help=pos1 help"`
+		Pos2                   bool    `argparser:"type=pos,help=pos2 help"`
+		Posssssssssssssssssss3 string  `argparser:"type=pos,help=pos3 help"`
+		Pos4                   float64 `argparser:"type=pos,help=pos4 help"`
+		Pos5                   []int   `argparser:"type=pos,help=pos5 help,nargs=2"`
+		Opt1                   int     `argparser:"help=opt1 help"`
+		Opt2                   bool    `argparser:"help=opt2 help"`
+		Optfffffffffffffff3    string  `argparser:"help=opt3 help"`
+		Opt4                   float64 `argparser:"help=opt4 help"`
+		Opt5                   []int   `argparser:"help=opt5 help,nargs=3"`
+		Sw1                    bool    `argparser:"type=switch,help=sw1 help"`
+	}{}
 
-// 	argSet, err := NewArgSet(&args1)
-// 	if err != nil {
-// 		t.Error(err)
-// 	}
-// 	argSet.Description = "affaadadaddadsdasdasdddddddddddddddddddddddddddasda adsdasddd\nasdddadadadada"
+	argSet, err := NewArgSet(&args1)
+	if err != nil {
+		t.Error(err)
+	}
+	argSet.Description = "affaadadaddadsdasdasdddddddddddddddddddddddddddasda adsdasddd\nasdddadadadada"
 
-// 	parser := NewArgParser(argSet)
-
-// 	parser.Usage()
-// }
+	argSet.usage(os.Stderr)
+}
