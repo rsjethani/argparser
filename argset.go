@@ -105,15 +105,18 @@ func (argSet *ArgSet) usage(out io.Writer) {
 	fmt.Fprint(out, argSet.Description)
 	fmt.Fprint(out, "\n\nPositional Arguments:")
 	for _, p := range argSet.posArgs {
-		fmt.Fprintf(out, "\n  %s  %T\n\t%s", p.name, p.arg.value.Get(), p.arg.help)
+		val := p.arg.value.Get()
+		fmt.Fprintf(out, "\n  %[1]s  %[2]T\n\t%[3]s  (Default: %[2]v)", p.name, val, p.arg.help, val)
 	}
+
 	fmt.Fprint(out, "\n\nOptional Arguments:")
 	for name, arg := range argSet.optArgs {
+		sw := ""
 		if arg.isSwitch() {
-			fmt.Fprintf(out, "\n  %s\n\t%s", name, arg.help)
-		} else {
-			fmt.Fprintf(out, "\n  %s  %T\n\t%s", name, arg.value.Get(), arg.help)
+			sw = "  (switch)"
 		}
+		val := arg.value.Get()
+		fmt.Fprintf(out, "\n  %[1]s  %[2]T%[4]s\n\t%[3]s  (Default: %[2]v)", name, val, arg.help, sw)
 	}
 }
 
