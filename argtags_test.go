@@ -119,10 +119,10 @@ func TestNewArgFromTagsValidInput(t *testing.T) {
 		if arg.nArgs != 1 {
 			t.Errorf("testing: newArgFromTags(%s); expected: arg.nargs==1; got: %v", testKVs, arg.nArgs)
 		}
-		if arg.Help != "help message" {
-			t.Errorf("testing: newArgFromTags(%s); expected: arg.Help==\"help message\"; got: %v", testKVs, arg.Help)
+		if arg.help != "help message" {
+			t.Errorf("testing: newArgFromTags(%s); expected: arg.Help==\"help message\"; got: %v", testKVs, arg.help)
 		}
-		if arg.Value != testValue {
+		if arg.value != testValue {
 			t.Errorf("testing: newArgFromTags(testValue,\"Field1\",%s); expected: arg.Value==testValue; got: unequal", testKVs)
 		}
 	}
@@ -146,10 +146,10 @@ func TestNewArgFromTagsValidInput(t *testing.T) {
 		if !arg.isSwitch() {
 			t.Errorf("testing: newArgFromTags(%s); expected: arg.positional==false; got: %v", testKVs, arg.positional)
 		}
-		if arg.Help != "help message" {
-			t.Errorf("testing: newArgFromTags(%s); expected: arg.Help==\"help message\"; got: %v", testKVs, arg.Help)
+		if arg.help != "help message" {
+			t.Errorf("testing: newArgFromTags(%s); expected: arg.Help==\"help message\"; got: %v", testKVs, arg.help)
 		}
-		if arg.Value != testValue {
+		if arg.value != testValue {
 			t.Errorf("testing: newArgFromTags(testValue,\"Field1\",%s); expected: arg.Value==testValue; got: unequal", testKVs)
 		}
 	}
@@ -170,10 +170,10 @@ func TestNewArgFromTagsValidInput(t *testing.T) {
 		if arg.nArgs != 1 {
 			t.Errorf("testing: newArgFromTags(%s); expected: arg.nargs==1; got: %v", testKVs, arg.nArgs)
 		}
-		if arg.Help != "help message" {
-			t.Errorf("testing: newArgFromTags(%s); expected: arg.Help==\"help message\"; got: %v", testKVs, arg.Help)
+		if arg.help != "help message" {
+			t.Errorf("testing: newArgFromTags(%s); expected: arg.Help==\"help message\"; got: %v", testKVs, arg.help)
 		}
-		if arg.Value != testValue {
+		if arg.value != testValue {
 			t.Errorf("testing: newArgFromTags(testValue,\"Field1\",%s); expected: arg.Value==testValue; got: unequal", testKVs)
 		}
 	}
@@ -199,10 +199,10 @@ func TestNewArgFromTagsValidInput(t *testing.T) {
 		if arg.nArgs != 1 {
 			t.Errorf("testing: newArgFromTags(%s); expected: arg.nargs==1; got: %v", testKVs, arg.nArgs)
 		}
-		if arg.Help != "help message" {
-			t.Errorf("testing: newArgFromTags(%s); expected: arg.Help==\"help message\"; got: %v", testKVs, arg.Help)
+		if arg.help != "help message" {
+			t.Errorf("testing: newArgFromTags(%s); expected: arg.Help==\"help message\"; got: %v", testKVs, arg.help)
 		}
-		if arg.Value != testValue {
+		if arg.value != testValue {
 			t.Errorf("testing: newArgFromTags(testValue,\"Field1\",%s); expected: arg.Value==testValue; got: unequal", testKVs)
 		}
 	}

@@ -93,7 +93,7 @@ func (argSet *ArgSet) AddArgument(name string, arg *Argument) {
 	if arg == nil {
 		return
 	}
-	if arg.isPositional() {
+	if arg.positional {
 		argSet.posArgs = append(argSet.posArgs, posArgWithName{name: name, arg: arg})
 		return
 	}
@@ -105,14 +105,14 @@ func (argSet *ArgSet) usage(out io.Writer) {
 	fmt.Fprint(out, argSet.Description)
 	fmt.Fprint(out, "\n\nPositional Arguments:")
 	for _, p := range argSet.posArgs {
-		fmt.Fprintf(out, "\n  %s  %T\n\t%s", p.name, p.arg.Value.Get(), p.arg.Help)
+		fmt.Fprintf(out, "\n  %s  %T\n\t%s", p.name, p.arg.value.Get(), p.arg.help)
 	}
 	fmt.Fprint(out, "\n\nOptional Arguments:")
 	for name, arg := range argSet.optArgs {
 		if arg.isSwitch() {
-			fmt.Fprintf(out, "\n  %s\n\t%s", name, arg.Help)
+			fmt.Fprintf(out, "\n  %s\n\t%s", name, arg.help)
 		} else {
-			fmt.Fprintf(out, "\n  %s  %T\n\t%s", name, arg.Value.Get(), arg.Help)
+			fmt.Fprintf(out, "\n  %s  %T\n\t%s", name, arg.value.Get(), arg.help)
 		}
 	}
 }
@@ -164,7 +164,7 @@ func (argSet *ArgSet) parseFrom(args []string) error {
 			// is an undefined positional arg
 			return fmt.Errorf("Unknown positional argument: %s", curArg)
 		case statePosArg:
-			if err := argSet.posArgs[posIndex].arg.Value.Set(curArg); err != nil {
+			if err := argSet.posArgs[posIndex].arg.value.Set(curArg); err != nil {
 				return fmt.Errorf("error while setting option '%s': %s", argSet.posArgs[posIndex].name, err)
 			}
 			visited[argSet.posArgs[posIndex].name] = true
@@ -172,28 +172,28 @@ func (argSet *ArgSet) parseFrom(args []string) error {
 			argsIndex++
 			curState = stateInit
 		case stateOptArg:
-			if argSet.optArgs[curArg].NArgs() == 0 {
-				argSet.optArgs[curArg].Value.Set()
+			if argSet.optArgs[curArg].nArgs == 0 {
+				argSet.optArgs[curArg].value.Set()
 				argsIndex++
-			} else if argSet.optArgs[curArg].NArgs() < 0 {
-				if err := argSet.optArgs[curArg].Value.Set(args[argsIndex+1:]...); err != nil {
+			} else if argSet.optArgs[curArg].nArgs < 0 {
+				if err := argSet.optArgs[curArg].value.Set(args[argsIndex+1:]...); err != nil {
 					return fmt.Errorf("error while setting option '%s': %s", curArg, err)
 				}
 				argsIndex = len(args)
 
 			} else {
 				inp := []string{}
-				for i := 1; i <= argSet.optArgs[curArg].NArgs(); i++ {
+				for i := 1; i <= argSet.optArgs[curArg].nArgs; i++ {
 					v := getArg(i + argsIndex)
 					if v == "" {
-						return fmt.Errorf("invalid no. of arguments for option '%s'; required: %d, given: %d", curArg, argSet.optArgs[curArg].NArgs(), i-1)
+						return fmt.Errorf("invalid no. of arguments for option '%s'; required: %d, given: %d", curArg, argSet.optArgs[curArg].nArgs, i-1)
 					}
 					inp = append(inp, v)
 				}
-				if err := argSet.optArgs[curArg].Value.Set(inp...); err != nil {
+				if err := argSet.optArgs[curArg].value.Set(inp...); err != nil {
 					return fmt.Errorf("error while setting option '%s': %s", curArg, err)
 				}
-				argsIndex += argSet.optArgs[curArg].NArgs() + 1
+				argsIndex += argSet.optArgs[curArg].nArgs + 1
 			}
 			curState = stateInit
 		case stateNoArgsLeft:

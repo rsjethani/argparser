@@ -5,8 +5,8 @@ import (
 )
 
 type Argument struct {
-	Value      Value
-	Help       string
+	value      Value
+	help       string
 	positional bool
 	nArgs      int // TODO: convert to string for patterns like '*', '+' etc.
 }
@@ -14,8 +14,8 @@ type Argument struct {
 func NewPosArg(value Value, help string) *Argument {
 	return &Argument{
 		nArgs:      1,
-		Value:      value,
-		Help:       help,
+		value:      value,
+		help:       help,
 		positional: true,
 	}
 }
@@ -23,8 +23,8 @@ func NewPosArg(value Value, help string) *Argument {
 func NewOptArg(value Value, help string) *Argument {
 	return &Argument{
 		nArgs:      1,
-		Value:      value,
-		Help:       help,
+		value:      value,
+		help:       help,
 		positional: false,
 	}
 }
@@ -32,22 +32,14 @@ func NewOptArg(value Value, help string) *Argument {
 func NewSwitchArg(value Value, help string) *Argument {
 	return &Argument{
 		nArgs:      0,
-		Value:      value,
-		Help:       help,
+		value:      value,
+		help:       help,
 		positional: false,
 	}
 }
 
 func (arg *Argument) isSwitch() bool {
 	return !arg.positional && arg.nArgs == 0
-}
-
-func (arg *Argument) isPositional() bool {
-	return arg.positional
-}
-
-func (arg *Argument) NArgs() int {
-	return arg.nArgs
 }
 
 func (arg *Argument) SetNArgs(n int) error {
