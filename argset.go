@@ -33,11 +33,18 @@ type ArgSet struct {
 	// make usage tabular: name,type/format,default,help
 }
 
+func (argSet *ArgSet) addHelp() {
+	var help bool
+	argSet.Add("help", NewSwitchArg(NewBool(&help), "Show this help message"))
+}
+
 func NewArgSet() *ArgSet {
-	return &ArgSet{
+	argSet := &ArgSet{
 		OptArgPrefix: defaultOptArgPrefix,
 		optArgs:      make(map[string]*Argument),
 	}
+	argSet.addHelp()
+	return argSet
 }
 
 func NewArgSetFrom(src interface{}) (*ArgSet, error) {

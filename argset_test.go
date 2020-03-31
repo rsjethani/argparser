@@ -75,8 +75,8 @@ func TestNewArgSetFromValidInputs(t *testing.T) {
 	if err != nil {
 		t.Errorf("testing: NewArgSet(%#v); expected: non-nil *ArgSet and nil error; got: %v", args1, err)
 	}
-	if len(argset.posArgs) != 0 || len(argset.optArgs) != 0 {
-		t.Errorf("testing: NewArgSet(%#v); expected: no optional/positional arguments in argset; got: %#v", &args1, argset)
+	if len(argset.posArgs) != 0 || len(argset.optArgs) != 1 {
+		t.Errorf("testing: NewArgSet(%#v); expected: no arguments except --help in argset; got: %#v", &args1, argset)
 	}
 
 	// Test parsing of tagged fields and no error with valid key/values
