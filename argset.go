@@ -26,7 +26,6 @@ type ArgSet struct {
 	OptArgPrefix string
 	posArgs      []posArgWithName
 	optArgs      map[string]*Argument
-	// "optprefix": "--",
 	// mutex
 	// choices
 	//short option and short prefix
@@ -94,7 +93,7 @@ func (argSet *ArgSet) AddArgument(name string, arg *Argument) {
 	if arg == nil {
 		return
 	}
-	if arg.IsPositional() {
+	if arg.isPositional() {
 		argSet.posArgs = append(argSet.posArgs, posArgWithName{name: name, arg: arg})
 		return
 	}

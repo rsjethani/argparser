@@ -42,7 +42,7 @@ func (arg *Argument) isSwitch() bool {
 	return !arg.positional && arg.nArgs == 0
 }
 
-func (arg *Argument) IsPositional() bool {
+func (arg *Argument) isPositional() bool {
 	return arg.positional
 }
 
