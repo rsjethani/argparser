@@ -19,20 +19,20 @@ func TestNewArgSet(t *testing.T) {
 	}
 }
 
-func TestAddArgument(t *testing.T) {
+func TestArgSetAdd(t *testing.T) {
 	argset := NewArgSet()
 
-	argset.AddArgument("dummy", nil)
+	argset.Add("dummy", nil)
 	if len(argset.posArgs) != 0 || argset.optArgs["--dummy"] != nil {
 		t.Errorf(`testing: argset.AddArgument("dummy", nil); expected: no positional/optional argument named 'dummy should get added; got: 'dummy' got added`)
 	}
 
-	argset.AddArgument("pos1", NewPosArg(nil, ""))
+	argset.Add("pos1", NewPosArg(nil, ""))
 	if len(argset.posArgs) == 0 || argset.posArgs[0].name != "pos1" {
 		t.Errorf(`testing: argset.AddArgument("pos1", NewPosArg(nil, "")); expected: argset.posArgs[0].name == "pos1"; got: len(argset.posArgs) == 0`)
 	}
 
-	argset.AddArgument("opt1", NewOptArg(nil, ""))
+	argset.Add("opt1", NewOptArg(nil, ""))
 	if argset.optArgs["--opt1"] == nil {
 		t.Errorf(`testing: argset.AddArgument("opt1", NewOptArg(nil, "")); expected: argset.optArgs["opt1"] != nil; got: argset.optArgs["opt1"] == nil`)
 	}

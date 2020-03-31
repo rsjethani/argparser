@@ -25,7 +25,7 @@ func main() {
 	}
 	mainSet.Description = "CLI for managing employee database"
 
-	parser := argparser.NewArgParser(mainSet)
+	parser := argparser.NewParser(mainSet)
 	parser.Usage()
 
 	fmt.Printf("\nBEFORE parsing: %+v\n", config)

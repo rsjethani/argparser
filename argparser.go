@@ -6,12 +6,12 @@ import (
 	"os"
 )
 
-type ArgParser struct {
+type Parser struct {
 	mainArgSet *ArgSet
 	usageOut   io.Writer
 }
 
-func (parser *ArgParser) SetOutput(w io.Writer) {
+func (parser *Parser) SetOutput(w io.Writer) {
 	if w == nil {
 		parser.usageOut = os.Stderr
 		return
@@ -19,21 +19,21 @@ func (parser *ArgParser) SetOutput(w io.Writer) {
 	parser.usageOut = w
 }
 
-func NewArgParser(argSet *ArgSet) *ArgParser {
-	parser := &ArgParser{mainArgSet: argSet, usageOut: os.Stderr}
+func NewParser(argSet *ArgSet) *Parser {
+	parser := &Parser{mainArgSet: argSet, usageOut: os.Stderr}
 	return parser
 }
 
-func (parser *ArgParser) Usage() {
+func (parser *Parser) Usage() {
 	fmt.Fprintf(parser.usageOut, "Usage of %s:\n", os.Args[0])
 	parser.mainArgSet.usage(parser.usageOut)
 	fmt.Fprintln(parser.usageOut, "")
 }
 
-func (parser *ArgParser) ParseFrom(args []string) error {
+func (parser *Parser) ParseFrom(args []string) error {
 	return parser.mainArgSet.parseFrom(args)
 }
 
-func (parser *ArgParser) Parse() error {
+func (parser *Parser) Parse() error {
 	return parser.ParseFrom(os.Args[1:])
 }

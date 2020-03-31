@@ -83,13 +83,13 @@ func NewArgSetFrom(src interface{}) (*ArgSet, error) {
 			return nil, fmt.Errorf("Error while creating argument from field '%s': %s", fieldType.Name, err)
 		}
 
-		newArgSet.AddArgument(name, arg)
+		newArgSet.Add(name, arg)
 	}
 
 	return newArgSet, nil
 }
 
-func (argSet *ArgSet) AddArgument(name string, arg *Argument) {
+func (argSet *ArgSet) Add(name string, arg *Argument) {
 	if arg == nil {
 		return
 	}
