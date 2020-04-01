@@ -23,11 +23,14 @@ type posArgWithName struct {
 }
 
 type ArgSet struct {
+	name         string
+	ArgList      []string
 	Description  string
 	OptArgPrefix string
 	posArgs      []posArgWithName
 	optArgs      map[string]*Argument
 	usageOut     io.Writer
+	Usage        func()
 
 	// mutex
 	// choices
@@ -54,6 +57,8 @@ func NewArgSet() *ArgSet {
 		OptArgPrefix: defaultOptArgPrefix,
 		optArgs:      make(map[string]*Argument),
 		usageOut:     os.Stderr,
+		name:         os.Args[0],
+		ArgList:      os.Args[1:],
 	}
 	argSet.addHelp()
 	return argSet
@@ -119,9 +124,19 @@ func (argSet *ArgSet) Add(name string, arg *Argument) {
 	argSet.optArgs[argSet.OptArgPrefix+name] = arg
 }
 
+// usage calls the Usage method for the ArgSet if one is specified,
+// or the appropriate default usage function otherwise.
 func (argSet *ArgSet) usage() {
+	if argSet.Usage == nil {
+		argSet.defaultUsage()
+	} else {
+		argSet.Usage()
+	}
+}
+
+func (argSet *ArgSet) defaultUsage() {
 	out := argSet.usageOut
-	fmt.Fprintf(out, "Usage of %s:\n", os.Args[0])
+	fmt.Fprintf(out, "Usage of %s:\n\n", argSet.name)
 	// TODO: show list of opt args in sorted order
 	fmt.Fprint(out, argSet.Description)
 	fmt.Fprint(out, "\n\nPositional Arguments:")
@@ -143,15 +158,16 @@ func (argSet *ArgSet) usage() {
 	fmt.Fprintln(out, "")
 }
 
-func (argSet *ArgSet) ParseFrom(args []string) error {
+func (argSet *ArgSet) Parse() error {
+	argsToParse := argSet.ArgList
 	curState := stateInit
 	var curArg string
 	visited := make(map[string]bool)
 	var posIndex, argsIndex int
 
 	getArg := func(i int) string {
-		if i < len(args) {
-			return args[i]
+		if i < len(argsToParse) {
+			return argsToParse[i]
 		}
 		return ""
 	}
@@ -206,10 +222,10 @@ func (argSet *ArgSet) ParseFrom(args []string) error {
 				argSet.optArgs[curArg].value.Set()
 				argsIndex++
 			} else if argSet.optArgs[curArg].nArgs < 0 {
-				if err := argSet.optArgs[curArg].value.Set(args[argsIndex+1:]...); err != nil {
+				if err := argSet.optArgs[curArg].value.Set(argsToParse[argsIndex+1:]...); err != nil {
 					return fmt.Errorf("error while setting option '%s': %s", curArg, err)
 				}
-				argsIndex = len(args)
+				argsIndex = len(argsToParse)
 
 			} else {
 				inp := []string{}
@@ -235,8 +251,4 @@ func (argSet *ArgSet) ParseFrom(args []string) error {
 			return nil
 		}
 	}
-}
-
-func (argSet *ArgSet) Parse() error {
-	return argSet.ParseFrom(os.Args[1:])
 }
