@@ -49,7 +49,7 @@ func (argSet *ArgSet) SetOutput(w io.Writer) {
 
 func (argSet *ArgSet) addHelp() {
 	var help bool
-	argSet.Add("help", NewSwitchArg(NewBool(&help), "Show this help message"))
+	argSet.Add("help", NewSwitchArg(NewBool(&help), "Show this help message and exit"))
 }
 
 func NewArgSet() *ArgSet {
@@ -147,12 +147,12 @@ func (argSet *ArgSet) defaultUsage() {
 
 	fmt.Fprint(out, "\n\nOptional Arguments:")
 	for name, arg := range argSet.optArgs {
-		sw := ""
 		if arg.isSwitch() {
-			sw = "  (switch)"
+			fmt.Fprintf(out, "\n  %[1]s\n\t%s", name, arg.help)
+			continue
 		}
 		val := arg.value.Get()
-		fmt.Fprintf(out, "\n  %[1]s  %[2]T%[4]s\n\t%[3]s  (Default: %[2]v)", name, val, arg.help, sw)
+		fmt.Fprintf(out, "\n  %[1]s  %[2]T\n\t%[3]s  (Default: %[2]v)", name, val, arg.help)
 	}
 
 	fmt.Fprintln(out, "")
